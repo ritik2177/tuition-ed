@@ -5,7 +5,6 @@ import { AnimatedTooltipPreview } from "@/components/AnimatedTooltipPreview";
 import { TeamCarousel, TeamMember } from "@/components/ui/team-carousel";
 import RippleButton from "@/components/ui/ripple-button";
 import Image from "next/image";
-
 import * as React from 'react';
 import Timeline from '@mui/lab/Timeline';
 import TimelineItem from '@mui/lab/TimelineItem';
@@ -19,8 +18,7 @@ import LaptopMacIcon from '@mui/icons-material/LaptopMac';
 import HotelIcon from '@mui/icons-material/Hotel';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import Typography from '@mui/material/Typography';
-
-
+import Link from "next/link";
 
 
 const teamMembers: TeamMember[] = [
@@ -77,14 +75,14 @@ export default function Home() {
             <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto text-muted-foreground">
               Begin your academic adventure with us at Tuitioned, where each step leads to personal and academic growth. Our dedicated educators are here to guide you, providing the support needed for academic success. 🎉
             </p>
-            <div>
+            <Link href="/get-a-free-tail">
               <RippleButton className="mt-6 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-primary-foreground bg-primary rounded-lg shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300 transform hover:scale-105">
                 <span className="flex items-center">
                   Get a Free Trial
                   <GoArrowRight className="ml-2" />
                 </span>
               </RippleButton>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
@@ -148,7 +146,7 @@ export default function Home() {
         <TeamCarousel members={teamMembers} title="Tuitioned's Rising Stars" />
       </section>
 
-      {/* YouTube and Timeline Section */}
+      {/* Image and Timeline Section */}
       <section className="py-20 sm:py-32">
         <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
           <div className="max-w-2xl mx-auto lg:text-center mb-16">
@@ -158,8 +156,8 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* YouTube Video */}
-            <div className="aspect-video rounded-lg overflow-hidden shadow-2xl relative">
+
+            <div className="aspect-video rounded-lg overflow-hidden relative">
               <Image
                 className="w-full h-full"
                 src="/home1.png"
