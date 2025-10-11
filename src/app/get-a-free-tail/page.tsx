@@ -158,7 +158,7 @@ export default function FreeTrialPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch overflow-hidden rounded-2xl border border-border shadow-lg">
             {/* Left image */}
             <div className="hidden lg:block relative">
-              <Image src="/st1.jpg" alt="Free trial" fill className="object-cover rounded-l-lg" />
+              <Image src="/st1.webp" alt="Free trial" fill className="object-cover rounded-l-lg" />
             </div>
 
             {/* Right form */}

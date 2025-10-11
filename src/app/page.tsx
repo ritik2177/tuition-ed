@@ -64,25 +64,32 @@ export default function Home() {
     <main className="bg-background text-foreground">
       {/* Hero Section */}
       <section className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-              Expert Online Tutoring Services for K-12 & College
-            </h1>
-            <h2 className="mt-4 text-2xl md:text-3xl font-medium tracking-tight text-foreground/80">
-              Your Perfect Online Private Tutor is Here
-            </h2>
-            <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto text-muted-foreground">
-              Begin your academic adventure with us at Tuitioned, where each step leads to personal and academic growth. Our dedicated educators are here to guide you, providing the support needed for academic success. 🎉
-            </p>
-            <Link href="/get-a-free-tail">
-              <RippleButton className="mt-6 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-primary-foreground bg-primary rounded-lg shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300 transform hover:scale-105">
-                <span className="flex items-center">
-                  Get a Free Trial
-                  <GoArrowRight className="ml-2" />
-                </span>
-              </RippleButton>
-            </Link>
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left side: Text content */}
+            <div className="text-center lg:text-left">
+              <h1 className="text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+                Expert Online Tutoring Services for K-12 & College
+              </h1>
+              <h2 className="mt-4 text-2xl md:text-3xl font-medium tracking-tight text-foreground/80">
+                Your Perfect Online Private Tutor is Here
+              </h2>
+              <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 text-muted-foreground">
+                Begin your academic adventure with us at Tuitioned, where each step leads to personal and academic growth. Our dedicated educators are here to guide you, providing the support needed for academic success. 🎉
+              </p>
+              <Link href="/get-a-free-tail">
+                <RippleButton className="mt-6 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-primary-foreground bg-primary rounded-lg shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300 transform hover:scale-105">
+                  <span className="flex items-center">
+                    Get a Free Trial
+                    <GoArrowRight className="ml-2" />
+                  </span>
+                </RippleButton>
+              </Link>
+            </div>
+            {/* Right side: Image */}
+            <div className="relative w-full h-80 lg:h-[500px]">
+              <Image src="/home2.png" alt="Hero Image" layout="fill" objectFit="contain" className="rounded-lg" />
+            </div>
           </div>
         </div>
       </section>
