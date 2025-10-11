@@ -4,6 +4,24 @@ import SpotlightCard from "@/components/SpotlightCard";
 import { AnimatedTooltipPreview } from "@/components/AnimatedTooltipPreview";
 import { TeamCarousel, TeamMember } from "@/components/ui/team-carousel";
 import RippleButton from "@/components/ui/ripple-button";
+import Image from "next/image";
+
+import * as React from 'react';
+import Timeline from '@mui/lab/Timeline';
+import TimelineItem from '@mui/lab/TimelineItem';
+import TimelineSeparator from '@mui/lab/TimelineSeparator';
+import TimelineConnector from '@mui/lab/TimelineConnector';
+import TimelineContent from '@mui/lab/TimelineContent';
+import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
+import TimelineDot from '@mui/lab/TimelineDot';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import LaptopMacIcon from '@mui/icons-material/LaptopMac';
+import HotelIcon from '@mui/icons-material/Hotel';
+import RepeatIcon from '@mui/icons-material/Repeat';
+import Typography from '@mui/material/Typography';
+
+
+
 
 const teamMembers: TeamMember[] = [
   {
@@ -61,7 +79,10 @@ export default function Home() {
             </p>
             <div>
               <RippleButton className="mt-6 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-primary-foreground bg-primary rounded-lg shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300 transform hover:scale-105">
-                Enroll Today
+                <span className="flex items-center">
+                  Get a Free Trial
+                  <GoArrowRight className="ml-2" />
+                </span>
               </RippleButton>
             </div>
           </div>
@@ -120,7 +141,107 @@ export default function Home() {
 
       {/* Team Carousel Section */}
       <section className="py-20 sm:py-32">
+        <h2 className="text-center text-5xl font-bold leading-8 tracking-tight text-primary">Tuitioned's Rising Stars</h2>
+        <p className="mt-6 text-lg text-center leading-8 text-muted-foreground">
+          Our dedicated team of educators and professionals are here to guide you on your learning journey.
+        </p>
         <TeamCarousel members={teamMembers} title="Tuitioned's Rising Stars" />
+      </section>
+
+      {/* YouTube and Timeline Section */}
+      <section className="py-20 sm:py-32">
+        <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
+          <div className="max-w-2xl mx-auto lg:text-center mb-16">
+            <h2 className="text-base font-semibold leading-7 text-primary">How It Works</h2>
+            <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              A Glimpse Into Our Process
+            </p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* YouTube Video */}
+            <div className="aspect-video rounded-lg overflow-hidden shadow-2xl relative">
+              <Image
+                className="w-full h-full"
+                src="/home1.png"
+                alt="A glimpse into our process"
+                layout="fill"
+                objectFit="cover"
+              />
+            </div>
+
+            {/* Timeline */}
+            <div>
+              <Timeline position="alternate">
+                <TimelineItem>
+                  <TimelineOppositeContent sx={{ m: 'auto 0' }} align="right" variant="body2" color="text.secondary">
+                    9:30 am
+                  </TimelineOppositeContent>
+                  <TimelineSeparator>
+                    <TimelineConnector />
+                    <TimelineDot>
+                      <FastfoodIcon />
+                    </TimelineDot>
+                    <TimelineConnector />
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ py: '12px', px: 2 }}>
+                    <Typography variant="h6" component="span">
+                      Eat
+                    </Typography>
+                    <Typography>Because you need strength</Typography>
+                  </TimelineContent>
+                </TimelineItem>
+                <TimelineItem>
+                  <TimelineOppositeContent sx={{ m: 'auto 0' }} variant="body2" color="text.secondary">
+                    10:00 am
+                  </TimelineOppositeContent>
+                  <TimelineSeparator>
+                    <TimelineConnector />
+                    <TimelineDot color="primary">
+                      <LaptopMacIcon />
+                    </TimelineDot>
+                    <TimelineConnector />
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ py: '12px', px: 2 }}>
+                    <Typography variant="h6" component="span">
+                      Code
+                    </Typography>
+                    <Typography>Because it&apos;s awesome!</Typography>
+                  </TimelineContent>
+                </TimelineItem>
+                <TimelineItem>
+                  <TimelineSeparator>
+                    <TimelineConnector />
+                    <TimelineDot color="primary" variant="outlined">
+                      <HotelIcon />
+                    </TimelineDot>
+                    <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ py: '12px', px: 2 }}>
+                    <Typography variant="h6" component="span">
+                      Sleep
+                    </Typography>
+                    <Typography>Because you need rest</Typography>
+                  </TimelineContent>
+                </TimelineItem>
+                <TimelineItem>
+                  <TimelineSeparator>
+                    <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
+                    <TimelineDot color="secondary">
+                      <RepeatIcon />
+                    </TimelineDot>
+                    <TimelineConnector />
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ py: '12px', px: 2 }}>
+                    <Typography variant="h6" component="span">
+                      Repeat
+                    </Typography>
+                    <Typography>Because this is the life you love!</Typography>
+                  </TimelineContent>
+                </TimelineItem>
+              </Timeline>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Testimonials Section */}
@@ -156,7 +277,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       {/* Animated Tooltip Section */}
       <section className="py-20 sm:py-32">
         <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
