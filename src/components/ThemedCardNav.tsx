@@ -1,28 +1,20 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import CardNav, { CardNavProps } from "./CardNav";
+import { AnimatedThemeToggler } from "./ui/animated-theme-toggler";
 
 export default function ThemedCardNav(props: CardNavProps) {
-  const { theme } = useTheme();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) {
-    // Render a placeholder or nothing on the server to avoid hydration mismatch
-    return <div style={{ height: '60px' }} />;
-  }
-
-  const isDark = theme === "dark";
-
   const navProps: CardNavProps = {
     ...props,
-    baseColor: isDark ? "hsl(var(--background) / 0.5)" : "hsl(var(--background) / 0.8)",
-    menuColor: isDark ? "hsl(var(--foreground))" : "hsl(var(--foreground))",
+    loginButton: <button className="px-4 py-2 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground">Login</button>,
+    themeChanger: isMounted ? <AnimatedThemeToggler /> : <div className="w-9 h-9" />,
   };
 
   return <CardNav {...navProps} />;
