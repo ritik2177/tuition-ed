@@ -1,30 +1,22 @@
 'use client';
 
+import * as React from 'react';
 import { SessionProvider } from 'next-auth/react';
-import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes';
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { type ThemeProviderProps } from 'next-themes';
-import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
-import React from 'react';
-
-function MuiThemeWrapper({ children }: { children: React.ReactNode }) {
-    const { resolvedTheme } = useTheme();
-    const muiTheme = React.useMemo(
-        () =>
-            createTheme({
-                palette: {
-                    mode: resolvedTheme === 'dark' ? 'dark' : 'light',
-                },
-            }),
-        [resolvedTheme],
-    );
-
-    return <MuiThemeProvider theme={muiTheme}>{children}</MuiThemeProvider>;
-}
+import NextAppDirEmotionCacheProvider from './EmotionCache';
+import { ClientThemeWrapper } from './ClientThemeWrapper';
 
 export function AppProviders({ children, ...props }: ThemeProviderProps) {
     return (
-        <SessionProvider>
-            <NextThemesProvider {...props}><MuiThemeWrapper>{children}</MuiThemeWrapper></NextThemesProvider>
-        </SessionProvider>
+        <NextAppDirEmotionCacheProvider options={{ key: 'mui' }}>
+            <SessionProvider>
+                <NextThemesProvider {...props}>
+                    <ClientThemeWrapper>
+                        {children}
+                    </ClientThemeWrapper>
+                </NextThemesProvider>
+            </SessionProvider>
+        </NextAppDirEmotionCacheProvider>
     );
 }
