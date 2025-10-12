@@ -9,7 +9,6 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { X } from 'lucide-react';
-import { useTheme } from '@mui/material/styles';
 import CircularProgress from '@mui/material/CircularProgress';
 
 interface SignUpModalProps {
@@ -35,8 +34,6 @@ const style = {
 
 const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
     const [step, setStep] = useState<'details' | 'otp'>('details');
-    const theme = useTheme();
-    const isDarkMode = theme.palette.mode === 'dark';
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [mobile, setMobile] = useState('');
@@ -46,20 +43,20 @@ const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
 
     const textFieldStyles = {
         '& .MuiInputBase-input': {
-            color: isDarkMode ? '#fff' : '#000',
+            color: '#fff',
         },
         '& .MuiInputLabel-root': {
-            color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+            color: 'rgba(255, 255, 255, 0.7)',
         },
         '& .MuiOutlinedInput-root': {
             '& fieldset': {
-                borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                borderColor: 'rgba(255, 255, 255, 0.23)',
             },
             '&:hover fieldset': {
-                borderColor: isDarkMode ? '#fff' : '#000',
+                borderColor: '#fff',
             },
             '&.Mui-focused fieldset': {
-                borderColor: isDarkMode ? '#fff' : '#000',
+                borderColor: '#fff',
             },
         },
     };
@@ -121,7 +118,7 @@ const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
         >
             <Box sx={style}>
                 {/* Left Side */}
-                <Box sx={{ width: { xs: '100%', md: 300 }, p: 4, bgcolor: isDarkMode ? '#fff' : '#000', color: isDarkMode ? '#000' : '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+                <Box sx={{ width: { xs: '100%', md: 300 }, p: 4, bgcolor: '#fff', color: '#000', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
                     <Typography variant="h4" component="h2" sx={{ fontWeight: 'bold' }}>
                         Tuition-ed
                     </Typography>
@@ -131,7 +128,7 @@ const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
                 </Box>
 
                 {/* Right Side */}
-                <Box sx={{ p: 4, position: 'relative', width: { xs: '100%', md: 400 }, bgcolor: isDarkMode ? '#000' : '#fff', color: isDarkMode ? '#fff' : '#000' }}>
+                <Box sx={{ p: 4, position: 'relative', width: { xs: '100%', md: 400 }, bgcolor: '#000', color: '#fff' }}>
                     <IconButton onClick={handleClose} sx={{ position: 'absolute', top: 8, right: 8 }}>
                         <X />
                     </IconButton>
@@ -147,9 +144,9 @@ const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
                                 disabled={loading}
                                 sx={{
                                     mt: 2,
-                                    bgcolor: isDarkMode ? '#fff' : '#000',
-                                    color: isDarkMode ? '#000' : '#fff',
-                                    '&:hover': { bgcolor: isDarkMode ? '#eee' : '#333' }
+                                    bgcolor: '#fff',
+                                    color: '#000',
+                                    '&:hover': { bgcolor: '#eee' }
                                 }}
                             >
                                 {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify and Process'}
@@ -159,8 +156,7 @@ const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
 
                     {step === 'otp' && (
                         <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 4 }}>
-                            <Typography variant="h6" component="h3">Enter OTP</Typography> {error && <Typography color="error" variant="body2">{error}</Typography>}
-                            <Typography variant="body2" sx={{ color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)' }}>
+                            <Typography variant="h6" component="h3">Enter OTP</Typography> {error && <Typography color="error" variant="body2">{error}</Typography>}<Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                                 An OTP has been sent to {email}.
                             </Typography>
                             <TextField
@@ -178,9 +174,9 @@ const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
                                 disabled={loading}
                                 sx={{
                                     mt: 2,
-                                    bgcolor: isDarkMode ? '#fff' : '#000',
-                                    color: isDarkMode ? '#000' : '#fff',
-                                    '&:hover': { bgcolor: isDarkMode ? '#eee' : '#333' }
+                                    bgcolor: '#fff',
+                                    color: '#000',
+                                    '&:hover': { bgcolor: '#eee' }
                                 }}
                             >
                                 {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}

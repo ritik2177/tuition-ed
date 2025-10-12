@@ -49,7 +49,7 @@ const Footer = () => {
   );
 
   return (
-    <footer className="bg-secondary text-secondary-foreground">
+    <footer className="bg-black">
       <div className="container mx-auto max-w-7xl px-6 py-12 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8">

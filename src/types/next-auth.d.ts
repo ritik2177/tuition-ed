@@ -10,6 +10,7 @@ declare module "next-auth" {
     isVerified?: boolean;
     fullName?: string;
     email?: string;
+    mobile?: string;
   }
 
   /**
@@ -27,5 +28,6 @@ declare module "next-auth/jwt" {
     isVerified?: boolean;
     fullName?: string;
     email?: string;
+    mobile?: string;
   }
 }

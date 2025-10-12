@@ -44,6 +44,7 @@ export const authOptions: AuthOptions = {
             email: student.email,
             fullName: student.fullName,
             isVerified: student.isVerified,
+            mobile: student.mobile,
           };
         } catch (err: any) {
           throw new Error(err.message || "An error occurred during authorization.");
@@ -58,6 +59,7 @@ export const authOptions: AuthOptions = {
         token.isVerified = user.isVerified;
         token.email = user.email;
         token.fullName = user.fullName;
+        token.mobile = user.mobile;
       }
       return token; // This token is passed to the session callback
     },
@@ -67,6 +69,7 @@ export const authOptions: AuthOptions = {
         session.user.isVerified = token.isVerified;
         session.user.email = token.email;
         session.user.fullName = token.fullName;
+        session.user.mobile = token.mobile;
       }
       return session;
     },

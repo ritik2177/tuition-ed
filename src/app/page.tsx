@@ -61,24 +61,21 @@ const teamMembers: TeamMember[] = [
 
 export default function Home() {
   return (
-    <main className="bg-background text-foreground">
+    <main>
       {/* Hero Section */}
       <section className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left side: Text content */}
             <div className="text-center lg:text-left">
-              <h1 className="text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+              <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground">
                 Expert Online Tutoring Services for K-12 & College
               </h1>
-              <h2 className="mt-4 text-2xl md:text-3xl font-medium tracking-tight text-foreground/80">
-                Your Perfect Online Private Tutor is Here
-              </h2>
               <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 text-muted-foreground">
                 Begin your academic adventure with us at Tuitioned, where each step leads to personal and academic growth. Our dedicated educators are here to guide you, providing the support needed for academic success. 🎉
               </p>
               <Link href="/get-a-free-tail">
-                <RippleButton className="mt-6 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-primary-foreground bg-primary rounded-lg shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300 transform hover:scale-105">
+                <RippleButton className="mt-6 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-black bg-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300 transform hover:scale-105">
                   <span className="flex items-center">
                     Get a Free Trial
                     <GoArrowRight className="ml-2" />
@@ -106,7 +103,7 @@ export default function Home() {
           </div>
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
             <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-              <SpotlightCard spotlightColor="rgba(0, 229, 255, 0.2)" className="h-full">
+              <SpotlightCard spotlightColor="rgba(0, 229, 255, 0.2)" className="h-full bg-card">
                 <div className="flex flex-col h-full p-6">
                   <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
                     <GoZap className="h-5 w-5 flex-none text-primary" aria-hidden="true" />
@@ -117,7 +114,7 @@ export default function Home() {
                   </dd>
                 </div>
               </SpotlightCard>
-              <SpotlightCard spotlightColor="rgba(255, 229, 0, 0.2)" className="h-full">
+              <SpotlightCard spotlightColor="rgba(255, 229, 0, 0.2)" className="h-full bg-card">
                 <div className="flex flex-col h-full p-6">
                   <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
                     <GoShieldCheck className="h-5 w-5 flex-none text-primary" aria-hidden="true" />
@@ -128,7 +125,7 @@ export default function Home() {
                   </dd>
                 </div>
               </SpotlightCard>
-              <SpotlightCard spotlightColor="rgba(255, 0, 229, 0.2)" className="h-full">
+              <SpotlightCard spotlightColor="rgba(255, 0, 229, 0.2)" className="h-full bg-card">
                 <div className="flex flex-col h-full p-6">
                   <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
                     <GoPeople className="h-5 w-5 flex-none text-primary" aria-hidden="true" />
@@ -146,11 +143,7 @@ export default function Home() {
 
       {/* Team Carousel Section */}
       <section className="py-20 sm:py-32">
-        <h2 className="text-center text-5xl font-bold leading-8 tracking-tight text-primary">Tuitioned's Rising Stars</h2>
-        <p className="mt-6 text-lg text-center leading-8 text-muted-foreground">
-          Our dedicated team of educators and professionals are here to guide you on your learning journey.
-        </p>
-        <TeamCarousel members={teamMembers} title="Tuitioned's Rising Stars" />
+        <TeamCarousel members={teamMembers} title="Tuitioned's Rising Stars" titleClassName="text-5xl" />
       </section>
 
       {/* Image and Timeline Section */}
@@ -250,7 +243,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 sm:py-32 bg-secondary/50">
+      <section className="py-20 sm:py-32">
         <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
           <div className="mx-auto max-w-xl text-center">
             <h2 className="text-lg font-semibold leading-8 tracking-tight text-primary">Testimonials</h2>
@@ -260,7 +253,7 @@ export default function Home() {
           </div>
           <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <SpotlightCard>
+              <SpotlightCard className="bg-card">
                 <blockquote className="p-8 h-full">
                   <p className="text-lg text-muted-foreground">"This platform transformed the way I learn. The interactive lessons and expert feedback are invaluable. I've progressed more in the last 3 months than I did in 3 years of self-study."</p>
                   <footer className="mt-6">
@@ -269,7 +262,7 @@ export default function Home() {
                   </footer>
                 </blockquote>
               </SpotlightCard>
-              <SpotlightCard>
+              <SpotlightCard className="bg-card">
                 <blockquote className="p-8 h-full">
                   <p className="text-lg text-muted-foreground">"As an educator, I'm always looking for tools that make teaching more effective. The community features and progress tracking have made my job so much easier and more rewarding."</p>
                   <footer className="mt-6">
