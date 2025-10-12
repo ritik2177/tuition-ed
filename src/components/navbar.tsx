@@ -9,6 +9,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Search, Menu, X } from 'lucide-react';
 import LoginModal from './LoginModal';
 import SignUpModal from './SignUpModal';
+import { useUI } from '@/provider/UIProvider';
 
 const Logo = () => (
     <Link href="/" className="font-bold text-xl tracking-tight text-foreground">
@@ -25,19 +26,8 @@ const navLinks = [
 
 const Navbar = () => {
     const { data: session, status } = useSession();
+    const { isLoginModalOpen, isSignUpModalOpen, openLoginModal, closeLoginModal, openSignUpModal, closeSignUpModal, switchToSignUp } = useUI();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-    const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
-
-    const handleOpenLogin = () => {
-        setIsSignUpModalOpen(false);
-        setIsLoginModalOpen(true);
-    };
-
-    const handleOpenSignUp = () => {
-        setIsLoginModalOpen(false);
-        setIsSignUpModalOpen(true);
-    };
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background backdrop-blur-lg">
@@ -80,7 +70,7 @@ const Navbar = () => {
                             </Button>
                         </>
                     ) : (
-                        <Button variant="contained" onClick={handleOpenLogin} sx={{
+                        <Button variant="contained" onClick={openLoginModal} sx={{
                             height: '40px',
                             backgroundColor: '#fff',
                             color: '#000',
@@ -145,7 +135,7 @@ const Navbar = () => {
                         ) : (
                             <Button
                                 variant="contained"
-                                onClick={() => { handleOpenLogin(); setIsMobileMenuOpen(false); }}
+                                onClick={() => { openLoginModal(); setIsMobileMenuOpen(false); }}
                                 fullWidth sx={{
                                     backgroundColor: '#fff',
                                     color: '#000',
@@ -158,8 +148,8 @@ const Navbar = () => {
                     </div>
                 </div>
             </div>
-            <LoginModal open={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} onSwitchToSignUp={handleOpenSignUp} />
-            <SignUpModal open={isSignUpModalOpen} onClose={() => setIsSignUpModalOpen(false)} />
+            <LoginModal open={isLoginModalOpen} onClose={closeLoginModal} onSwitchToSignUp={switchToSignUp} />
+            <SignUpModal open={isSignUpModalOpen} onClose={closeSignUpModal} />
         </header>
     );
 };

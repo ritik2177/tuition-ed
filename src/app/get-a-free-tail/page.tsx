@@ -16,11 +16,13 @@ import {
   FormControlLabel,
   Radio,
 } from "@mui/material";
+import { useUI } from "@/provider/UIProvider";
 
 const steps = ["Academic Details", "Schedule Demo"];
 
 export default function FreeTrialPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const { openLoginModal } = useUI();
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -37,7 +39,6 @@ export default function FreeTrialPage() {
         studentName: session.user.fullName || '',
         email: session.user.email || '',
         mobile: session.user.mobile || '',
-        studentId: session.user.id || '',
       }));
     }
   }, [session]);
@@ -191,6 +192,15 @@ export default function FreeTrialPage() {
                   </Button>
                 </Box>
               </>
+            ) : status === 'unauthenticated' ? (
+              <Box sx={{ textAlign: 'center', mt: 4, p: 4, border: '1px dashed', borderColor: 'grey.700', borderRadius: 2 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Please log in to book a demo class.
+                </Typography>
+                <Button variant="contained" onClick={openLoginModal}>
+                  Login
+                </Button>
+              </Box>
             ) : (
               <>
                 {error && (
