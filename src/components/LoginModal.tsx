@@ -56,6 +56,21 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose, onSwitchToSignUp
     setLoading(true);
     setError('');
     try {
+      // First, check if the user is a student
+      const roleCheckRes = await fetch('/api/auth/check-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const roleData = await roleCheckRes.json();
+
+      if (!roleCheckRes.ok) {
+        throw new Error(roleData.message || 'Failed to check user status.');
+      }
+      if (roleData.role !== 'student') {
+        throw new Error('This login is for students only. Please use the appropriate login form.');
+      }
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -53,6 +53,21 @@ const TeacherSignInModal: React.FC<TeacherSignInModalProps> = ({ open, onClose }
     setLoading(true);
     setError('');
     try {
+      // First, check if the user is a teacher
+      const roleCheckRes = await fetch('/api/auth/check-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const roleData = await roleCheckRes.json();
+
+      if (!roleCheckRes.ok) {
+        throw new Error(roleData.message || 'Failed to check user status.');
+      }
+      if (roleData.role !== 'teacher') {
+        throw new Error('This email is not registered as a teacher.');
+      }
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

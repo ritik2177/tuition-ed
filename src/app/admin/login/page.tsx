@@ -23,6 +23,21 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError('');
     try {
+      // First, check if the user is an admin
+      const roleCheckRes = await fetch('/api/auth/check-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const roleData = await roleCheckRes.json();
+
+      if (!roleCheckRes.ok) {
+        throw new Error(roleData.message || 'Failed to check user status.');
+      }
+      if (roleData.role !== 'admin') {
+        throw new Error('This email is not registered as an admin.');
+      }
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
