@@ -55,6 +55,23 @@ const TeacherSignUpModal: React.FC<TeacherSignUpModalProps> = ({ open, onClose }
     setLoading(true);
     setError('');
     try {
+      // First, check if the user already exists and what their role is.
+      const roleCheckRes = await fetch('/api/auth/check-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!roleCheckRes.ok) {
+        throw new Error('Failed to check user status.');
+      }
+
+      const { role } = await roleCheckRes.json();
+
+      if (role === 'teacher') {
+        throw new Error('You are already registered as a teacher. Please log in instead.');
+      }
+
       const res = await fetch('/api/auth/teacher-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,7 +91,12 @@ const TeacherSignUpModal: React.FC<TeacherSignUpModalProps> = ({ open, onClose }
     setLoading(true);
     setError('');
     try {
-      const result = await signIn('credentials', { redirect: false, email, otp });
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        otp,
+        requiredRole: 'teacher',
+      });
       if (result?.error) {
         throw new Error(result.error);
       }

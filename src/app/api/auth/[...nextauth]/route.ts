@@ -27,7 +27,7 @@ export const authOptions: AuthOptions = {
 
           // If a requiredRole is passed, check if the user has that role
           if (credentials?.requiredRole && user.role !== credentials.requiredRole) {
-            throw new Error("You are not a verified admin.");
+            throw new Error(`This login is for ${credentials.requiredRole}s only.`);
           }
 
           if (user.otp !== credentials?.otp) {

@@ -72,7 +72,12 @@ const TeacherSignInModal: React.FC<TeacherSignInModalProps> = ({ open, onClose }
     setLoading(true);
     setError('');
     try {
-      const result = await signIn('credentials', { redirect: false, email, otp });
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        otp,
+        requiredRole: 'teacher',
+      });
       if (result?.error) {
         throw new Error(result.error);
       }
