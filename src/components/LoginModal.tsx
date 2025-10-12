@@ -68,7 +68,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose, onSwitchToSignUp
         throw new Error(roleData.message || 'Failed to check user status.');
       }
       if (roleData.role !== 'student') {
-        throw new Error('This login is for students only. Please use the appropriate login form.');
+        throw new Error('This login is for students only.');
       }
 
       const res = await fetch('/api/auth/login', {
