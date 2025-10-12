@@ -93,53 +93,83 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="py-20 sm:py-32">
-        <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
-          <div className="max-w-2xl mx-auto lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-primary">Why Choose Tuitioned?</h2>
-            <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">A Better Learning Experience</p>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Our platform is designed to provide a seamless learning experience with powerful tools for both students and educators.
-            </p>
+  <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
+    <div className="max-w-2xl mx-auto lg:text-center">
+      <h2 className="text-base font-semibold leading-7 text-primary">Why Choose Tuitioned?</h2>
+      <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+        A Better Learning Experience
+      </p>
+      <p className="mt-6 text-lg leading-8 text-muted-foreground">
+        Our platform is designed to provide a seamless learning experience with powerful tools for both students and educators.
+      </p>
+    </div>
+
+    <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+      <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+
+        {/* SpotlightCard 1 */}
+        <SpotlightCard
+          spotlightColor="rgba(0, 229, 255, 0.2)"
+          className="relative h-full bg-card border border-cyan-400/40 rounded-2xl shadow-[0_0_25px_rgba(0,229,255,0.2)] transition-all duration-300 hover:shadow-[0_0_40px_rgba(0,229,255,0.35)] hover:scale-[1.03] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-r before:from-cyan-500/10 before:to-transparent before:animate-pulse"
+        >
+          <div className="flex flex-col h-full p-6 relative z-10">
+            <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
+              <GoZap className="h-5 w-5 flex-none text-primary" aria-hidden="true" />
+              Tailored Learning
+            </dt>
+            <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
+              <p className="flex-auto">
+                When you join Tuitioned, you’re not just enrolling in a course, you’re becoming part of a community.
+                Engage with fellow learners, participate in discussions, and grow together! Want a taste of our community spirit?
+                It’s all in our demo session!
+              </p>
+            </dd>
           </div>
-          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-              <SpotlightCard spotlightColor="rgba(0, 229, 255, 0.2)" className="h-full bg-card">
-                <div className="flex flex-col h-full p-6">
-                  <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
-                    <GoZap className="h-5 w-5 flex-none text-primary" aria-hidden="true" />
-                    Tailored Learning
-                  </dt>
-                  <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
-                    <p className="flex-auto">When you join Tuitioned, you’re not just enrolling in a course, you’re becoming part of a community. Engage with fellow learners, participate in discussions, and grow together! Want a taste of our community spirit? It’s all in our demo session!</p>
-                  </dd>
-                </div>
-              </SpotlightCard>
-              <SpotlightCard spotlightColor="rgba(255, 229, 0, 0.2)" className="h-full bg-card">
-                <div className="flex flex-col h-full p-6">
-                  <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
-                    <GoShieldCheck className="h-5 w-5 flex-none text-primary" aria-hidden="true" />
-                    Expert Guidance
-                  </dt>
-                  <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
-                    <p className="flex-auto">Our experienced professionals are not just teachers, they’re mentors who are dedicated to your success in the realm of online tuition. Want a sneak peek of their expertise? Join our demo session!</p>
-                  </dd>
-                </div>
-              </SpotlightCard>
-              <SpotlightCard spotlightColor="rgba(255, 0, 229, 0.2)" className="h-full bg-card">
-                <div className="flex flex-col h-full p-6">
-                  <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
-                    <GoPeople className="h-5 w-5 flex-none text-primary" aria-hidden="true" />
-                    Community Engagement
-                  </dt>
-                  <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
-                    <p className="flex-auto">When you join Tuitioned, you’re not just enrolling in a course, you’re becoming part of a community. Engage with fellow learners, participate in discussions, and grow together! Want a taste of our community spirit? It’s all in our demo session!</p>
-                  </dd>
-                </div>
-              </SpotlightCard>
-            </dl>
+        </SpotlightCard>
+
+        {/* SpotlightCard 2 */}
+        <SpotlightCard
+          spotlightColor="rgba(255, 229, 0, 0.2)"
+          className="relative h-full bg-card border border-yellow-400/40 rounded-2xl shadow-[0_0_25px_rgba(255,229,0,0.2)] transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,229,0,0.35)] hover:scale-[1.03] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-r before:from-yellow-400/10 before:to-transparent before:animate-pulse"
+        >
+          <div className="flex flex-col h-full p-6 relative z-10">
+            <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
+              <GoShieldCheck className="h-5 w-5 flex-none text-primary" aria-hidden="true" />
+              Expert Guidance
+            </dt>
+            <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
+              <p className="flex-auto">
+                Our experienced professionals are not just teachers, they’re mentors who are dedicated to your success.
+                Want a sneak peek of their expertise? Join our demo session!
+              </p>
+            </dd>
           </div>
-        </div>
-      </section>
+        </SpotlightCard>
+
+        {/* SpotlightCard 3 */}
+        <SpotlightCard
+          spotlightColor="rgba(255, 0, 229, 0.2)"
+          className="relative h-full bg-card border border-pink-400/40 rounded-2xl shadow-[0_0_25px_rgba(255,0,229,0.2)] transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,0,229,0.35)] hover:scale-[1.03] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-r before:from-pink-500/10 before:to-transparent before:animate-pulse"
+        >
+          <div className="flex flex-col h-full p-6 relative z-10">
+            <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
+              <GoPeople className="h-5 w-5 flex-none text-primary" aria-hidden="true" />
+              Community Engagement
+            </dt>
+            <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
+              <p className="flex-auto">
+                When you join Tuitioned, you’re not just enrolling in a course, you’re becoming part of a community.
+                Engage with fellow learners, participate in discussions, and grow together!
+              </p>
+            </dd>
+          </div>
+        </SpotlightCard>
+
+      </dl>
+    </div>
+  </div>
+</section>
+
 
       {/* Team Carousel Section */}
       <section className="py-20 sm:py-32">

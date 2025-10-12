@@ -1,5 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
-import Student from "@/models/Student";
+import User from "@/models/User";
 import { sendOtpEmail } from "@/lib/sendOtp";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Email is required" }, { status: 400 });
     }
 
-    const user = await Student.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return NextResponse.json({ message: "User not found. Please sign up first." }, { status: 404 });

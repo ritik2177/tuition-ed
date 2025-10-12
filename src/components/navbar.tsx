@@ -9,6 +9,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Search, Menu, X } from 'lucide-react';
 import LoginModal from './LoginModal';
 import SignUpModal from './SignUpModal';
+import TeacherAuthModal from './TeacherAuthModal';
+import TeacherSignInModal from './TeacherSignInModal';
+import TeacherSignUpModal from './TeacherSignUpModal';
 import { useUI } from '@/provider/UIProvider';
 
 const Logo = () => (
@@ -26,7 +29,7 @@ const navLinks = [
 
 const Navbar = () => {
     const { data: session, status } = useSession();
-    const { isLoginModalOpen, isSignUpModalOpen, openLoginModal, closeLoginModal, openSignUpModal, closeSignUpModal, switchToSignUp } = useUI();
+    const { activeModal, openModal, closeModal, switchModal } = useUI();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
@@ -53,12 +56,23 @@ const Navbar = () => {
                     />
                     {status === 'authenticated' ? (
                         <>
+                            <Button
+                                component={Link}
+                                href="/dashboard"
+                                variant="text"
+                                sx={{
+                                    color: 'inherit',
+                                    '&:hover': { backgroundColor: 'action.hover' }
+                                }}
+                            >
+                                Dashboard
+                            </Button>
                             <span className="text-sm font-medium text-foreground whitespace-nowrap">
                                 Hi, {session.user?.fullName?.split(' ')[0]}
                             </span>
                             <Button
                                 variant="contained"
-                                onClick={() => signOut()}
+                                onClick={() => signOut({ callbackUrl: '/' })}
                                 sx={{
                                     height: '40px',
                                     backgroundColor: '#fff',
@@ -69,16 +83,28 @@ const Navbar = () => {
                                 Logout
                             </Button>
                         </>
-                    ) : (
-                        <Button variant="contained" onClick={openLoginModal} sx={{
-                            height: '40px',
-                            backgroundColor: '#fff',
-                            color: '#000',
-                            '&:hover': { backgroundColor: '#f0f0f0' }
-                        }}>
-                            Login
+                    ) : (<>
+                        <Button
+                            variant="text"
+                            onClick={() => openModal('teacherAuth')}
+                            sx={{
+                                color: 'inherit',
+                                '&:hover': { backgroundColor: 'action.hover' }
+                            }}
+                        >
+                            Become a Teacher
                         </Button>
-                    )}
+                        <Button 
+                            variant="contained" 
+                            onClick={() => openModal('login')} 
+                            sx={{
+                                height: '40px',
+                                backgroundColor: '#fff',
+                                color: '#000',
+                                '&:hover': { backgroundColor: '#f0f0f0' }
+                            }}>
+                                Login
+                        </Button></>)}
                 </div>
 
                 {/* Mobile menu button */}
@@ -119,11 +145,37 @@ const Navbar = () => {
                             </Link>
                         ))}
                     </div>
+                    <div className="border-t pt-4">
+                        {status === 'authenticated' ? (
+                            <Button
+                                component={Link}
+                                href="/dashboard"
+                                variant="outlined"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                fullWidth
+                                sx={{ color: 'text.primary', borderColor: 'rgba(255, 255, 255, 0.23)' }}
+                            >
+                                Dashboard
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="outlined"
+                                onClick={() => { openModal('teacherAuth'); setIsMobileMenuOpen(false); }}
+                                fullWidth
+                                sx={{
+                                    color: 'text.primary',
+                                    borderColor: 'rgba(255, 255, 255, 0.23)'
+                                }}
+                            >
+                                Become a Teacher
+                            </Button>
+                        )}
+                    </div>
                     <div className="flex items-center justify-between pt-2">
                         {status === 'authenticated' ? (
                             <Button
                                 variant="contained"
-                                onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
+                                onClick={() => { signOut({ callbackUrl: '/' }); setIsMobileMenuOpen(false); }}
                                 fullWidth sx={{
                                     backgroundColor: '#fff',
                                     color: '#000',
@@ -135,21 +187,24 @@ const Navbar = () => {
                         ) : (
                             <Button
                                 variant="contained"
-                                onClick={() => { openLoginModal(); setIsMobileMenuOpen(false); }}
+                                onClick={() => { openModal('login'); setIsMobileMenuOpen(false); }}
                                 fullWidth sx={{
                                     backgroundColor: '#fff',
                                     color: '#000',
                                     '&:hover': { backgroundColor: '#f0f0f0' }
                                 }}
                             >
-                                Login
+                                Login / Sign Up
                             </Button>
                         )}
                     </div>
                 </div>
             </div>
-            <LoginModal open={isLoginModalOpen} onClose={closeLoginModal} onSwitchToSignUp={switchToSignUp} />
-            <SignUpModal open={isSignUpModalOpen} onClose={closeSignUpModal} />
+            <LoginModal open={activeModal === 'login'} onClose={closeModal} onSwitchToSignUp={() => switchModal('signup')} />
+            <SignUpModal open={activeModal === 'signup'} onClose={closeModal} />
+            <TeacherAuthModal open={activeModal === 'teacherAuth'} onClose={closeModal} />
+            <TeacherSignInModal open={activeModal === 'teacherSignin'} onClose={closeModal} />
+            <TeacherSignUpModal open={activeModal === 'teacherSignup'} onClose={closeModal} />
         </header>
     );
 };

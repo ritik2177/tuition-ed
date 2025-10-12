@@ -2,30 +2,39 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+type ModalType = 'login' | 'signup' | 'teacherAuth' | 'teacherSignin' | 'teacherSignup' | null;
+
 interface UIContextType {
-  isLoginModalOpen: boolean;
-  isSignUpModalOpen: boolean;
-  openLoginModal: () => void;
-  openSignUpModal: () => void;
-  closeLoginModal: () => void;
-  closeSignUpModal: () => void;
-  switchToSignUp: () => void;
+  activeModal: ModalType;
+  openModal: (modal: ModalType) => void;
+  closeModal: () => void;
+  switchModal: (modal: ModalType) => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export const UIProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
 
-  const openLoginModal = () => { setIsSignUpModalOpen(false); setIsLoginModalOpen(true); };
-  const openSignUpModal = () => { setIsLoginModalOpen(false); setIsSignUpModalOpen(true); };
-  const closeLoginModal = () => setIsLoginModalOpen(false);
-  const closeSignUpModal = () => setIsSignUpModalOpen(false);
-  const switchToSignUp = () => { closeLoginModal(); openSignUpModal(); };
+  const openModal = (modal: ModalType) => {
+    setActiveModal(modal);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+  };
+
+  const switchModal = (modal: ModalType) => {
+    setActiveModal(modal);
+  };
 
   return (
-    <UIContext.Provider value={{ isLoginModalOpen, isSignUpModalOpen, openLoginModal, openSignUpModal, closeLoginModal, closeSignUpModal, switchToSignUp }}>
+    <UIContext.Provider value={{ 
+      activeModal,
+      openModal,
+      closeModal,
+      switchModal,
+    }}>
       {children}
     </UIContext.Provider>
   );

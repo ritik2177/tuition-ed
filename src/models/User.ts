@@ -1,9 +1,9 @@
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
 /**
- * Interface representing a Student document in MongoDB.
+ * Interface representing a User document in MongoDB.
  */
-export interface IStudent extends Document {
+export interface IUser extends Document {
   _id: mongoose.Schema.Types.ObjectId;
   fullName: string;
   email: string;
@@ -19,9 +19,10 @@ export interface IStudent extends Document {
   otp?: string;
   otpExpires?: Date;
   isVerified: boolean;
+  role: 'student' | 'teacher' | 'admin';
 }
 
-const StudentSchema: Schema<IStudent> = new mongoose.Schema({
+const UserSchema: Schema<IUser> = new mongoose.Schema({
   fullName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   mobile: { type: String },
@@ -35,8 +36,13 @@ const StudentSchema: Schema<IStudent> = new mongoose.Schema({
   otp: { type: String },
   otpExpires: { type: Date },
   isVerified: { type: Boolean, default: false },
+  role: {
+    type: String,
+    enum: ['student', 'teacher', 'admin'],
+    default: 'student',
+  },
 }, { timestamps: true }); // `timestamps` adds `createdAt` and `updatedAt` fields
 
-const Student: Model<IStudent> = models.Student || mongoose.model<IStudent>('Student', StudentSchema);
+const User: Model<IUser> = models.User || mongoose.model<IUser>('User', UserSchema);
 
-export default Student;
+export default User;

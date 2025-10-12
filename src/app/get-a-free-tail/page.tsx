@@ -1,34 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
-import {
-  Box,
-  Stepper,
-  Step,
-  StepLabel,
-  Button,
-  Typography,
-  TextField,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-} from "@mui/material";
 import { useUI } from "@/provider/UIProvider";
 
 const steps = ["Academic Details", "Schedule Demo"];
 
 export default function FreeTrialPage() {
   const { data: session, status } = useSession();
-  const { openLoginModal } = useUI();
+  const { openModal } = useUI();
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
@@ -36,38 +23,38 @@ export default function FreeTrialPage() {
     if (session?.user) {
       setFormData(prev => ({
         ...prev,
-        studentName: session.user.fullName || '',
-        email: session.user.email || '',
-        mobile: session.user.mobile || '',
+        studentName: session.user.fullName || "",
+        email: session.user.email || "",
+        mobile: session.user.mobile || "",
       }));
     }
   }, [session]);
 
   const handleNext = () => {
-    setError(''); // Clear errors on step change
-    setActiveStep((prev) => prev + 1);
+    setError("");
+    setActiveStep(prev => prev + 1);
   };
 
-  const handleBack = () => setActiveStep((prev) => prev - 1);
+  const handleBack = () => setActiveStep(prev => prev - 1);
 
   const handleReset = () => {
     setActiveStep(0);
     setFormData({});
-    setError('');
+    setError("");
   };
 
   const handleSubmit = async () => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      const response = await fetch('/api/demoClass', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/demoClass", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Something went wrong.');
-      handleNext(); // Move to the success screen
+      if (!response.ok) throw new Error(data.message || "Something went wrong.");
+      handleNext();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -75,157 +62,246 @@ export default function FreeTrialPage() {
     }
   };
 
-  function getStepContent(step: number) {
+  const renderStep = (step: number) => {
     switch (step) {
       case 0:
         return (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 3 }}>
-            <TextField name="grade" label="Grade / Class" required value={formData.grade || ""} onChange={handleChange} size="small" />
-            <FormControl component="fieldset">
-              <FormLabel sx={{ color: 'text.secondary' }}>Subject / Course</FormLabel>
-              <RadioGroup
-                row
-                name="subject"
-                value={formData.subject || ""}
+          <div className="flex flex-col gap-4 mt-4">
+            <input
+              name="grade"
+              type="text"
+              placeholder="Grade / Class"
+              required
+              value={formData.grade || ""}
+              onChange={handleChange}
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Subject / Course
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  "Maths",
+                  "Science",
+                  "English",
+                  "Physics",
+                  "Chemistry",
+                  "Biology",
+                  "History",
+                  "Coding",
+                  "Other",
+                ].map((subject) => (
+                  <label key={subject} className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      name="subject"
+                      value={subject.toLowerCase()}
+                      checked={formData.subject === subject.toLowerCase()}
+                      onChange={handleChange}
+                      className="accent-blue-600"
+                    />
+                    <span>{subject}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {formData.subject === "other" && (
+              <input
+                name="otherSubject"
+                type="text"
+                placeholder="Please specify subject"
+                value={formData.otherSubject || ""}
                 onChange={handleChange}
-              >
-                <FormControlLabel value="math" control={<Radio />} label="Maths" />
-                <FormControlLabel value="science" control={<Radio />} label="Science" />
-                <FormControlLabel value="english" control={<Radio />} label="English" />
-                <FormControlLabel value="physics" control={<Radio />} label="Physics" />
-                <FormControlLabel value="chemistry" control={<Radio />} label="Chemistry" />
-                <FormControlLabel value="biology" control={<Radio />} label="Biology" />
-                <FormControlLabel value="history" control={<Radio />} label="History" />
-                <FormControlLabel value="coding" control={<Radio />} label="Coding" />
-                <FormControlLabel value="other" control={<Radio />} label="Other" />
-              </RadioGroup>
-            </FormControl>
-            {formData.subject === 'other' && (
-              <TextField name="otherSubject" label="Please specify subject" value={formData.otherSubject || ""} onChange={handleChange} size="small" />
+                className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              />
             )}
-            <TextField name="demoTopic" label="Specific Demo Topic (Optional)" value={formData.demoTopic || ""} onChange={handleChange} size="small" />
-          </Box>
+
+            <input
+              name="demoTopic"
+              type="text"
+              placeholder="Specific Demo Topic (Optional)"
+              value={formData.demoTopic || ""}
+              onChange={handleChange}
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
         );
 
       case 1:
         return (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 3 }}>
-            <TextField name="parentName" label="Parent's Name" required value={formData.parentName || ""} onChange={handleChange} size="small" />
-            <TextField name="city" label="City" required value={formData.city || ""} onChange={handleChange} size="small" />
-            <TextField name="country" label="Country" required value={formData.country || ""} onChange={handleChange} size="small" />
-            <TextField
+          <div className="flex flex-col gap-4 mt-4">
+            <input
+              name="parentName"
+              type="text"
+              placeholder="Parent's Name"
+              required
+              value={formData.parentName || ""}
+              onChange={handleChange}
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+            <input
+              name="city"
+              type="text"
+              placeholder="City"
+              required
+              value={formData.city || ""}
+              onChange={handleChange}
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+            <input
+              name="country"
+              type="text"
+              placeholder="Country"
+              required
+              value={formData.country || ""}
+              onChange={handleChange}
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+            <input
               name="demoTime"
-              label="Preferred Demo Class Time"
               type="datetime-local"
               required
               value={formData.demoTime || ""}
               onChange={handleChange}
-              size="small"
-              InputLabelProps={{
-                shrink: true,
-              }}
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
             />
-            <TextField name="comment" label="Additional Comments" multiline rows={4} value={formData.comment || ""} onChange={handleChange} size="small" />
-          </Box>
+            <textarea
+              name="comment"
+              rows={4}
+              placeholder="Additional Comments"
+              value={formData.comment || ""}
+              onChange={handleChange}
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
         );
-
       default:
         return null;
     }
-  }
+  };
 
   return (
-    <main className="mt-10 min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <main className="mt-10 min-h-screen flex items-center justify-center p-6 text-white">
       <div className="container mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
-          {/* Left side content */}
-          <div className="hidden lg:flex flex-col justify-center items-center text-center p-8 rounded-l-lg">
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 2, color: 'text.primary' }}>
-              Unlock Your Potential
-            </Typography>
-            <Typography variant="body1" sx={{ maxWidth: '400px', color: 'text.secondary' }}>
-              Experience our interactive teaching methods firsthand. Our free demo class is a great way to understand our curriculum, meet our expert tutors, and see how we make learning engaging and effective. Sign up today and take the first step towards academic excellence.
-            </Typography>
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch rounded-2xl border border-gray-200  shadow-xl overflow-hidden">
+          {/* Left side */}
+          <div className="hidden lg:flex flex-col justify-center items-center text-center p-10 ">
+            <h1 className="text-3xl font-bold mb-3">Unlock Your Potential</h1>
+            <p className="max-w-md">
+              Experience our interactive teaching methods firsthand. Our free demo class helps
+              you understand our curriculum, meet expert tutors, and see how we make learning
+              engaging and effective.
+            </p>
           </div>
 
-          {/* Right form */}
-          <div className="p-6 sm:p-8 md:p-12">
-            <Typography variant="h4" align="center" sx={{ color: 'text.primary', fontWeight: 600 }}>
+          {/* Right side */}
+          <div className="p-6 sm:p-10 md:p-12">
+            <h2 className="text-2xl font-semibold text-center ">
               Book Your Free Demo Class
-            </Typography>
+            </h2>
 
-            <Stepper
-              activeStep={activeStep}
-              sx={{
-                my: 4,
-                "& .MuiStepIcon-root": {
-                  "&.Mui-active, &.Mui-completed": { color: "primary.main" },
-                },
-              }}
-            >
-              {steps.map((label) => (
-                <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
-                </Step>
-              ))}
-            </Stepper>
+            {/* Stepper */}
+            <div className="flex justify-center mt-6 mb-8">
+              <div className="flex space-x-8">
+                {steps.map((label, index) => (
+                  <div key={index} className="flex flex-col items-center">
+                    <div
+                      className={`w-8 h-8 flex items-center justify-center rounded-full border-2 
+                        ${index <= activeStep ? "border-purple-600 bg-purple-600 text-white" : "border-gray-300 text-gray-400"}`}
+                    >
+                      {index + 1}
+                    </div>
+                    <span
+                      className={`text-sm mt-2 ${
+                        index <= activeStep ? "text-purple-600" : "text-gray-400"
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
+            {/* Success */}
             {activeStep === steps.length ? (
-              <>
-                <Typography variant="h5" component="h2" sx={{ mb: 2, fontWeight: 'bold', textAlign: 'center' }}>
-                  🎉 Demo Class Confirmed!
-                </Typography>
-                <Typography sx={{ mt: 2, mb: 1, color: 'text.primary', textAlign: 'center' }}>
-                  Your demo class for <strong>{new Date(formData.demoTime).toLocaleString()}</strong> has been successfully booked.
-                </Typography>
-                <Typography sx={{ mt: 1, color: 'text.secondary', textAlign: 'center' }}>
+              <div className="text-center">
+                <h3 className="text-xl font-semibold mb-2">🎉 Demo Class Confirmed!</h3>
+                <p className="text-gray-700 mb-1">
+                  Your demo class for{" "}
+                  <strong>{new Date(formData.demoTime).toLocaleString()}</strong> has been booked.
+                </p>
+                <p className="text-gray-500 mb-4">
                   A confirmation email has been sent to <strong>{formData.email}</strong>.
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                  <Box sx={{ flex: "1 1 auto" }} />
-                  <Button
+                </p>
+                <div className="flex justify-center gap-4">
+                  <button
                     onClick={handleReset}
-                    variant="contained"
-                    sx={{ px: 3, py: 1.2, borderRadius: "8px" }}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                   >
                     Book Another Demo
-                  </Button>
-                </Box>
-              </>
-            ) : status === 'unauthenticated' ? (
-              <Box sx={{ textAlign: 'center', mt: 4, p: 4, border: '1px dashed', borderColor: 'grey.700', borderRadius: 2 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>
+                  </button>
+                  <Link
+                    href="/dashboard"
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition flex items-center"
+                  >
+                    Go to Dashboard
+                  </Link>
+                </div>
+              </div>
+            ) : status === "unauthenticated" ? (
+              <div className="text-center mt-6 p-6 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-lg font-medium mb-3 text-gray-700">
                   Please log in to book a demo class.
-                </Typography>
-                <Button variant="contained" onClick={openLoginModal}>
+                </p>
+                <button
+                  onClick={() => openModal('login')}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                >
                   Login
-                </Button>
-              </Box>
+                </button>
+              </div>
+            ) : status === "authenticated" && session.user.role !== 'student' ? (
+              <div className="text-center mt-6 p-6 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-lg font-medium mb-3 text-gray-700">
+                  Only students can book a free demo class.
+                </p>
+                <p className="text-sm text-gray-500">
+                  Please log in with a student account to proceed.
+                </p>
+              </div>
             ) : (
               <>
-                {error && (
-                  <Typography color="error" sx={{ mt: 2, textAlign: 'center' }}>{error}</Typography>
-                )}
-                {getStepContent(activeStep)}
-                <Box sx={{ display: "flex", flexDirection: "row", pt: 4 }}>
-                  <Button
-                    disabled={activeStep === 0}
+                {error && <p className="text-red-600 text-center mt-2">{error}</p>}
+                {renderStep(activeStep)}
+                <div className="flex justify-between mt-6">
+                  <button
                     onClick={handleBack}
-                    variant="outlined"
-                    sx={{ mr: 1, px: 3, py: 1.2, borderRadius: "8px" }}
+                    disabled={activeStep === 0}
+                    className={`px-4 py-2 rounded-lg border transition ${
+                      activeStep === 0
+                        ? "opacity-50 cursor-not-allowed border-gray-200 text-gray-400"
+                        : "border-gray-300 hover:bg-gray-100"
+                    }`}
                   >
                     Back
-                  </Button>
-                  <Box sx={{ flex: "1 1 auto" }} />
-                  <Button
+                  </button>
+
+                  <button
                     onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
-                    variant="contained"
-                    sx={{ px: 3, py: 1.2, borderRadius: "8px" }}
                     disabled={loading}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                   >
-                    {loading ? 'Submitting...' : (activeStep === steps.length - 1 ? "Finish" : "Next")}
-                  </Button>
-                </Box>
+                    {loading
+                      ? "Submitting..."
+                      : activeStep === steps.length - 1
+                      ? "Finish"
+                      : "Next"}
+                  </button>
+                </div>
               </>
             )}
           </div>

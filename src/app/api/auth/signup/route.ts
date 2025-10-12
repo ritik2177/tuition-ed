@@ -1,5 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
-import Student from "@/models/Student";
+import User from "@/models/User";
 import { sendOtpEmail } from "@/lib/sendOtp";
 import { NextResponse } from "next/server";
 
@@ -17,13 +17,14 @@ export async function POST(req: Request) {
     const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // valid for 5 minutes
 
     // Find or create user
-    let user = await Student.findOne({ email });
+    let user = await User.findOne({ email });
     if (!user) {
-      user = new Student({
+      user = new User({
         fullName,
         email,
         mobile,
         isVerified: false,
+        role: 'student',
       });
     }
 
