@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -11,8 +13,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { LayoutDashboard, BookOpen, Users, School } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, School, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import { signOut } from 'next-auth/react';
 
 const drawerWidth = 240;
 
@@ -64,6 +67,15 @@ export default function AdminLayout({
               </ListItemButton>
             </ListItem>
           ))}
+        </List>
+        <Divider />
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => signOut({ callbackUrl: '/' })}>
+              <ListItemIcon><LogOut size={20} /></ListItemIcon>
+              <ListItemText primary="Logout" />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Drawer>
       <Box

@@ -7,36 +7,36 @@ import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Hash } from "lucide-react";
 import { Typography, CircularProgress, Alert, Box } from "@mui/material";
 
-// Define the Student type, matching the one in your data table
-export type StudentFromAPI = {
+// Define the Teacher type, matching the data from your API
+export type TeacherFromAPI = {
   _id: string; // MongoDB's default ID field
   name: string;
   email: string;
   mobile?: string; // Make optional if it might not exist
 };
 
-export default function StudentDetailPage({
+export default function TeacherDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>; 
 }) {
   const { id } = React.use(params); // Unwrap the params Promise
-  const [student, setStudent] = useState<StudentFromAPI | null>(null);
+  const [teacher, setTeacher] = useState<TeacherFromAPI | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
 
-    const fetchStudentDetails = async () => {
+    const fetchTeacherDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/students/${id}`);
+        const response = await fetch(`/api/teachers/${id}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch student details");
+          throw new Error("Failed to fetch teacher details");
         }
         const data = await response.json();
-        setStudent(data);
+        setTeacher(data);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -44,7 +44,7 @@ export default function StudentDetailPage({
       }
     };
 
-    fetchStudentDetails();
+    fetchTeacherDetails();
   }, [id]);
 
   if (loading) {
@@ -66,8 +66,8 @@ export default function StudentDetailPage({
     return <Alert severity="error">{error}</Alert>;
   }
 
-  if (!student) {
-    return <Alert severity="warning">No student data found.</Alert>;
+  if (!teacher) {
+    return <Alert severity="warning">No teacher data found.</Alert>;
   }
 
   return (
@@ -76,13 +76,13 @@ export default function StudentDetailPage({
         <div className="flex items-center gap-6">
           <Avatar className="h-20 w-20 border-2 border-primary">
             {/* Using a service to generate avatars from initials */}
-            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${student.name}`} alt={student.name} />
-            <AvatarFallback className="text-2xl">{student.name.charAt(0).toUpperCase()}</AvatarFallback>
+            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${teacher.name}`} alt={teacher.name} />
+            <AvatarFallback className="text-2xl">{teacher.name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>
-            <CardTitle className="text-3xl font-bold">{student.name}</CardTitle>
+            <CardTitle className="text-3xl font-bold">{teacher.name}</CardTitle>
             <Typography variant="body2" color="text.secondary" className="flex items-center gap-2 mt-1">
-              <Hash className="h-4 w-4" /> {student._id}
+              <Hash className="h-4 w-4" /> {teacher._id}
             </Typography>
           </div>
         </div>
@@ -97,14 +97,14 @@ export default function StudentDetailPage({
             <Mail className="h-5 w-5 text-muted-foreground" />
             <div className="flex-1">
               <p className="text-xs text-muted-foreground">Email</p>
-              <p className="font-medium">{student.email}</p>
+              <p className="font-medium">{teacher.email}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <Phone className="h-5 w-5 text-muted-foreground" />
             <div className="flex-1">
               <p className="text-xs text-muted-foreground">Mobile Number</p>
-              <p className="font-medium">{student.mobile || 'Not provided'}</p>
+              <p className="font-medium">{teacher.mobile || 'Not provided'}</p>
             </div>
           </div>
         </div>
