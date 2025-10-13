@@ -2,16 +2,27 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect'; // Assuming you have a db connection utility
 import DemoClass from '@/models/DemoClass';
 import nodemailer from 'nodemailer';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized. Please log in.' },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
 
     const body = await request.json();
 
-    // Basic validation to ensure required fields are present
-    const { studentName, parentName, email, grade, subject, city, country, demoTime, studentId } = body;
-    if (!studentName || !parentName || !email || !grade || !subject || !city || !country || !demoTime) {
+    // Validation for fields coming from the form
+    const { fatherName, email, grade, subject, topic, city, country, date } = body;
+    if (!fatherName || !email || !grade || !subject || !topic || !city || !country || !date) {
       return NextResponse.json(
         { success: false, message: 'Missing required fields.' },
         { status: 400 }
@@ -27,7 +38,16 @@ export async function POST(request: Request) {
     }
 
     const newDemoClass = await DemoClass.create({
-      ...body,
+      studentId: session.user.id,
+      studentName: session.user.fullName,
+      fatherName,
+      grade,
+      city,
+      country,
+      topic,
+      subject: subject === 'other' ? body.otherSubject : subject,
+      date,
+      // teacherName can be assigned later by an admin
     });
 
     // Send confirmation email
@@ -44,10 +64,10 @@ export async function POST(request: Request) {
       to: email,
       subject: "Demo Class Confirmed! 🎉",
       html: `
-        <h1>Hi ${body.studentName},</h1>
+        <h1>Hi ${session.user.fullName},</h1>
         <p>Your demo class has been successfully booked!</p>
-        <p><b>Subject:</b> ${body.subject === 'other' ? body.otherSubject : body.subject}</p>
-        <p><b>Time:</b> ${new Date(body.demoTime).toLocaleString()}</p>
+        <p><b>Subject:</b> ${subject === 'other' ? body.otherSubject : subject}</p>
+        <p><b>Time:</b> ${new Date(date).toLocaleString()}</p>
         <p>We're excited to see you there!</p>
         <p>Best,</p>
         <p>The Tuition-ed Team</p>
@@ -63,13 +83,14 @@ export async function POST(request: Request) {
         <h1>New Demo Class Request</h1>
         <p>A new demo class has been booked. Here are the details:</p>
         <ul>
-          <li><strong>Student Name:</strong> ${body.studentName}</li>
-          <li><strong>Parent's Name:</strong> ${body.parentName}</li>
+          <li><strong>Student Name:</strong> ${session.user.fullName}</li>
+          <li><strong>Father's Name:</strong> ${fatherName}</li>
           <li><strong>Email:</strong> ${body.email}</li>
           <li><strong>Mobile:</strong> ${body.mobile || 'Not provided'}</li>
-          <li><strong>Grade:</strong> ${body.grade}</li>
-          <li><strong>Subject:</strong> ${body.subject === 'other' ? body.otherSubject : body.subject}</li>
-          <li><strong>Preferred Time:</strong> ${new Date(body.demoTime).toLocaleString()}</li>
+          <li><strong>Grade:</strong> ${grade}</li>
+          <li><strong>Subject:</strong> ${subject === 'other' ? body.otherSubject : subject}</li>
+          <li><strong>Topic:</strong> ${topic}</li>
+          <li><strong>Preferred Time:</strong> ${new Date(date).toLocaleString()}</li>
           <li><strong>City:</strong> ${body.city}</li>
           <li><strong>Country:</strong> ${body.country}</li>
         </ul>

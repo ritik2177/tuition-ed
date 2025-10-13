@@ -120,10 +120,10 @@ export default function FreeTrialPage() {
             )}
 
             <input
-              name="demoTopic"
+              name="topic"
               type="text"
               placeholder="Specific Demo Topic (Optional)"
-              value={formData.demoTopic || ""}
+              value={formData.topic || ""}
               onChange={handleChange}
               className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
             />
@@ -134,11 +134,11 @@ export default function FreeTrialPage() {
         return (
           <div className="flex flex-col gap-4 mt-4">
             <input
-              name="parentName"
+              name="fatherName"
               type="text"
               placeholder="Parent's Name"
               required
-              value={formData.parentName || ""}
+              value={formData.fatherName || ""}
               onChange={handleChange}
               className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
             />
@@ -161,10 +161,10 @@ export default function FreeTrialPage() {
               className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
             />
             <input
-              name="demoTime"
+              name="date"
               type="datetime-local"
               required
-              value={formData.demoTime || ""}
+              value={formData.date || ""}
               onChange={handleChange}
               className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
             />
@@ -232,7 +232,7 @@ export default function FreeTrialPage() {
                 <h3 className="text-xl font-semibold mb-2">🎉 Demo Class Confirmed!</h3>
                 <p className="text-gray-700 mb-1">
                   Your demo class for{" "}
-                  <strong>{new Date(formData.demoTime).toLocaleString()}</strong> has been booked.
+                  <strong>{new Date(formData.date).toLocaleString()}</strong> has been booked.
                 </p>
                 <p className="text-gray-500 mb-4">
                   A confirmation email has been sent to <strong>{formData.email}</strong>.
