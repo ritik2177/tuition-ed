@@ -13,7 +13,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // Protect /admin routes
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin/dashboard')) {
     if (!token || token.role !== 'admin') {
       const url = req.nextUrl.clone();
       url.pathname = '/unauthorized'; // Or your login page
