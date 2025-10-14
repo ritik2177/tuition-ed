@@ -2,6 +2,7 @@ import "./globals.css";
 import { AppProviders } from "@/provider/AppProviders";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import { Toaster } from 'sonner';
 
 export default function RootLayout({
   children,
@@ -13,6 +14,7 @@ export default function RootLayout({
       <body>
         <AppProviders><Navbar />
         <div className="pt-16">{children}</div>
+          <Toaster richColors />
           <Footer />
         </AppProviders>
       </body>

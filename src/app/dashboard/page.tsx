@@ -21,7 +21,7 @@ export default function DashboardRedirectPage() {
     const userRole = session?.user?.role;
 
     if (userRole === 'admin') {
-      router.replace('/admin');
+      router.replace('/admin/dashboard');
     } else if (userRole === 'teacher') {
       router.replace('/teacher/dashboard');
     } else if (userRole === 'student') {

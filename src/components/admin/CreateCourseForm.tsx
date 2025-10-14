@@ -1,0 +1,189 @@
+"use client";
+
+import React, { useState } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+
+interface CourseFormValues {
+  title: string;
+  description: string;
+  grade: string;
+  teacherId: string;
+  classTime: string;
+  classDays: string[];
+  noOfClasses: number;
+  perClassPrice: number;
+  joinLink?: string;
+}
+
+interface CreateCourseFormProps {
+  studentId: string;
+  onCourseCreated: () => void; // Callback to close dialog or refresh data
+}
+
+export default function CreateCourseForm({ studentId, onCourseCreated }: CreateCourseFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+
+  const form = useForm<CourseFormValues>({
+    defaultValues: {
+      title: '',
+      description: '',
+      grade: '',
+      teacherId: '',
+      classTime: '',
+      classDays: [],
+      noOfClasses: 8,
+      perClassPrice: 500,
+      joinLink: '',
+    },
+  });
+
+  const toggleDay = (day: string) => {
+    const newSelectedDays = selectedDays.includes(day)
+      ? selectedDays.filter((d) => d !== day)
+      : [...selectedDays, day];
+    setSelectedDays(newSelectedDays);
+    form.setValue('classDays', newSelectedDays, { shouldValidate: true });
+  };
+
+  const onSubmit: SubmitHandler<CourseFormValues> = async (data) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`/api/students/${studentId}/my-courses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      // Handle non-JSON responses, which often indicate an auth redirect (HTML page)
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Received an invalid response from the server. Your session may have expired.');
+      }
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to create course');
+      }
+
+      toast.success('Course created and assigned successfully.');
+      onCourseCreated();
+    } catch (error: any) {
+      toast.error(error.message || 'An unexpected error occurred.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const availableDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  return (
+    <Form {...form} >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid md:grid-cols-2 gap-x-6 gap-y-4 backdrop-blur-3xl">
+        {/* Course Title */}
+        <div key="title">
+          <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="e.g., Mathematics" {...field} /></FormControl><FormMessage /></FormItem>)} />
+        </div>
+
+        {/* Grade */}
+        <div key="grade">
+          <FormField control={form.control} name="grade" render={({ field }) => (<FormItem><FormLabel>Grade</FormLabel><FormControl><Input placeholder="e.g., 10th" {...field} /></FormControl><FormMessage /></FormItem>)} />
+        </div>
+
+        {/* Teacher Name */}
+        <div key="teacherId">
+          <FormField control={form.control} name="teacherId" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Teacher ID</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter Teacher ID"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>)} />
+        </div>
+
+        {/* Class Time */}
+        <div key="classTime">
+          <FormField control={form.control} name="classTime" render={({ field }) => (<FormItem><FormLabel>Class Time</FormLabel><FormControl><Input placeholder="e.g., 5:00 PM - 6:00 PM" {...field} /></FormControl><FormMessage /></FormItem>)} />
+        </div>
+
+        {/* Description */}
+        <div key="description" className="md:col-span-2">
+          <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Course details..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+        </div>
+
+        {/* Class Days */}
+        <div key="classDays" className="md:col-span-2">
+          <FormItem>
+            <FormLabel>Class Days</FormLabel>
+            <FormControl>
+              <div className="flex flex-wrap gap-2 pt-2">
+                {availableDays.map((day) => (
+                  <Button
+                    key={day}
+                    type="button"
+                    variant={selectedDays.includes(day) ? 'default' : 'outline'}
+                    onClick={() => toggleDay(day)}
+                    className="rounded-full"
+                  >
+                    {day}
+                  </Button>
+                ))}
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </div>
+
+        {/* Number of Classes */}
+        <div key="noOfClasses">
+          <FormField control={form.control} name="noOfClasses" render={({ field }) => (<FormItem><FormLabel>Number of Classes</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>)} />
+        </div>
+
+        {/* Price per Class */}
+        <div key="perClassPrice">
+          <FormField control={form.control} name="perClassPrice" render={({ field }) => (<FormItem><FormLabel>Price per Class</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>)} />
+        </div>
+
+        {/* Join Link */}
+        <div key="joinLink" className="md:col-span-2">
+          <FormField control={form.control} name="joinLink" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Join Link (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., https://meet.google.com/xyz-abc-def" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>)} />
+        </div>
+
+        {/* Submit Button */}
+        <div key="submit" className="md:col-span-2">
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+          {isSubmitting ? (
+            <> <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating... </>
+          ) : (
+            'Create and Assign Course'
+          )}
+        </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}

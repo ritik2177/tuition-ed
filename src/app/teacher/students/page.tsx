@@ -18,8 +18,7 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
+  DropdownMenu,  
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -133,16 +132,10 @@ export default function StudentDataTable() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => router.push(`/admin/students/${student.id}`)}
+                onClick={() => router.push(`/teacher/students/${student.id}`)}
                 className="cursor-pointer data-[highlighted]:bg-transparent data-[highlighted]:text-purple-400"
               >
                 View student details
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push(`/admin/students/${student.id}/edit`)}
-                className="cursor-pointer data-[highlighted]:bg-transparent data-[highlighted]:text-purple-400"
-              >
-                Edit student
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -155,7 +148,7 @@ export default function StudentDataTable() {
     const fetchStudents = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/students')
+        const response = await fetch('/api/teachers-student')
 
         const contentType = response.headers.get('content-type');
         if (!response.ok) {
@@ -197,7 +190,7 @@ export default function StudentDataTable() {
 
   return (
     <div className="w-full">
-      <Typography variant="h4" gutterBottom>Student Management</Typography>
+      <Typography variant="h4" gutterBottom>My Students</Typography>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter by student name..."

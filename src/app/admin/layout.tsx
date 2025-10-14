@@ -20,7 +20,7 @@ import { signOut } from 'next-auth/react';
 const drawerWidth = 240;
 
 const navItems = [
-  { text: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/admin' },
+  { text: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/admin/dashboard' },
   { text: 'Courses', icon: <BookOpen size={20} />, href: '/admin/courses' },
   { text: 'Students', icon: <Users size={20} />, href: '/admin/students' },
   { text: 'Teachers', icon: <School size={20} />, href: '/admin/teachers' },
@@ -69,7 +69,7 @@ export default function AdminLayout({
           ))}
         </List>
         <Divider />
-        <List>
+        <List sx={{ marginTop: 'auto' }}>
           <ListItem disablePadding>
             <ListItemButton onClick={() => signOut({ callbackUrl: '/' })}>
               <ListItemIcon><LogOut size={20} /></ListItemIcon>

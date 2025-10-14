@@ -1,8 +1,5 @@
-import mongoose, { Schema, Document, models, Model } from 'mongoose';
+import mongoose, { Schema, Document, Types, models, Model } from 'mongoose';
 
-/**
- * Interface representing a User document in MongoDB.
- */
 export interface IUser extends Document {
   _id: mongoose.Schema.Types.ObjectId;
   fullName: string;
@@ -14,15 +11,16 @@ export interface IUser extends Document {
     city: string;
     state: string;
   };
-  profilePicture?: string;
-  
   otp?: string;
   otpExpires?: Date;
   isVerified: boolean;
   role: 'student' | 'teacher' | 'admin';
+  provider: 'google' | 'credentials';
+  isAcceptingMessages?: boolean;
+  messages?: [string];
 }
 
-const UserSchema: Schema<IUser> = new mongoose.Schema({
+const UserSchema: Schema<IUser> = new Schema({
   fullName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   mobile: { type: String },
@@ -32,17 +30,18 @@ const UserSchema: Schema<IUser> = new mongoose.Schema({
     city: String,
     state: String,
   },
-  profilePicture: { type: String },
-  otp: { type: String },
-  otpExpires: { type: Date },
-  isVerified: { type: Boolean, default: false },
   role: {
     type: String,
     enum: ['student', 'teacher', 'admin'],
     default: 'student',
   },
-}, { timestamps: true }); // `timestamps` adds `createdAt` and `updatedAt` fields
+  provider: { type: String, enum: ['google', 'credentials'], default: 'credentials' },
+  otp: { type: String },
+  otpExpires: { type: Date },
+  isVerified: { type: Boolean, default: false },
+  isAcceptingMessages: { type: Boolean, default: true },
+  messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
+}, { timestamps: true });
 
 const User: Model<IUser> = models.User || mongoose.model<IUser>('User', UserSchema);
-
 export default User;

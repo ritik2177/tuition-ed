@@ -1,9 +1,31 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect'; // Assuming you have a db connection utility
 import DemoClass from '@/models/DemoClass';
-import nodemailer from 'nodemailer';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import nodemailer from 'nodemailer';
+
+export async function GET(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized. Please log in.' },
+        { status: 401 }
+      );
+    }
+
+    await dbConnect();
+
+    const demoClasses = await DemoClass.find({ studentId: session.user.id }).sort({ date: -1 });
+
+    return NextResponse.json(demoClasses);
+  } catch (error: any) {
+    console.error('API GET Error:', error);
+    return NextResponse.json({ success: false, message: 'Server Error' }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {
