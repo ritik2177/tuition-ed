@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useParams, useRouter, notFound } from "next/navigation";
 import {
   CircularProgress,
@@ -12,6 +13,12 @@ import {
   Chip,
   Divider,
 } from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
 import {
   ArrowLeft,
   Calendar,
@@ -21,9 +28,40 @@ import {
   IndianRupee,
   PlusCircle,
   Info,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import { toast } from "sonner";
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  handler: (response: RazorpayResponse) => void;
+  prefill: {
+    name?: string | null;
+    email?: string | null;
+    contact?: string | null;
+  };
+  theme: {
+    color: string;
+  };
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+
+declare global {
+  interface Window { Razorpay?: new (options: RazorpayOptions) => { open: () => void }; }
+}
 
 interface ICourse {
   _id: string;
@@ -52,16 +90,29 @@ const statusColors = {
 export default function CourseDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const courseId = Array.isArray(params.id) ? params.id[0] : (params.id as string);
 
   const [course, setCourse] = useState<ICourse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [classesToAdd, setClassesToAdd] = useState(1);
 
   useEffect(() => {
     if (!courseId) return;
 
     const fetchCourseDetails = async () => {
+      // Load Razorpay script
+      if (!document.getElementById("razorpay-script")) {
+        const script = document.createElement("script");
+        script.id = "razorpay-script";
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+
       setLoading(true);
       try {
         const response = await fetch(`/api/student-courses/${courseId}`);
@@ -70,8 +121,11 @@ export default function CourseDetailPage() {
           throw new Error(errorData.message || "Failed to fetch course details.");
         }
         const data: ICourse = await response.json();
-        if (!data) notFound();
-        setCourse(data);
+        if (data) {
+          setCourse(data);
+        } else {
+          notFound();
+        }
       } catch (err: any) {
         setError(err.message || "An unknown error occurred");
       } finally {
@@ -97,6 +151,97 @@ export default function CourseDetailPage() {
   if (!course) {
     return notFound();
   }
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setClassesToAdd(1); // Reset on close
+  };
+
+  const handleIncrease = () => setClassesToAdd((prev) => prev + 1);
+  const handleDecrease = () => setClassesToAdd((prev) => Math.max(1, prev - 1));
+
+  const handleProcessPayment = async () => {
+    if (!session?.user) {
+      toast.error("You must be logged in to make a payment.");
+      return;
+    }
+    if (!course) {
+      toast.error("Course details not found.");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // 1. Create a Razorpay order
+      const res = await fetch("/api/razorpay/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: totalPrice, courseId: course._id, classesToAdd }),
+      });
+      const order = await res.json();
+
+      if (!res.ok) {
+        throw new Error(order.message || "Failed to create payment order.");
+      }
+
+      // 2. Open Razorpay checkout
+      const options: RazorpayOptions = {
+        key: process.env.NEXT_PUBLIC_RP_KEY_ID ?? "",
+        amount: order.amount,
+        currency: order.currency,
+        name: "Tuition ED",
+        description: `Payment for ${classesToAdd} extra classes for ${course.title}`,
+        order_id: order.id,
+        handler: async function (response) {
+          // 3. Verify payment and update database
+          const updateRes = await fetch("/api/student-courses/update-classes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              courseId: course._id,
+              classesAdded: classesToAdd,
+            }),
+          });
+
+          if (updateRes.ok) {
+            toast.success("Payment successful! Your course has been updated.");
+            router.refresh(); // Refresh the page to show updated class count
+            handleCloseModal();
+            setIsProcessing(false);
+          } else {
+            const errorData = await updateRes.json();
+            toast.error(errorData.message || "Failed to update course after payment.");
+          }
+        },
+        prefill: {
+          name: session.user.name,
+          email: session.user.email,
+          contact: (session.user as any).mobile, // Assuming mobile is available
+        },
+        theme: { color: "#4f46e5" }, // Indigo color
+      };
+
+      if (typeof window.Razorpay !== "function") {
+        toast.error("Razorpay SDK not loaded. Please try again in a moment.");
+        setIsProcessing(false);
+        return;
+      }
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (error: any) {
+      toast.error(error.message || "An unexpected error occurred.");
+      setIsProcessing(false);
+    }
+  };
+
+  const totalPrice = classesToAdd * course.perClassPrice;
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -130,7 +275,11 @@ export default function CourseDetailPage() {
             <Typography variant="body1">
               <span className="font-semibold">{course.noOfClasses}</span> Classes 
             </Typography>
-            <Button variant="contained" startIcon={<PlusCircle size={18} />}>
+            <Button
+              variant="contained"
+              startIcon={<PlusCircle size={18} />}
+              onClick={handleOpenModal}
+            >
               Add Classes
             </Button>
           </Box>
@@ -348,6 +497,47 @@ export default function CourseDetailPage() {
           </Paper>
         </Box>
       </Box>
+
+      {/* === ADD CLASSES MODAL === */}
+      <Dialog open={isModalOpen} onClose={handleCloseModal} PaperProps={{ sx: { borderRadius: 4 } }}>
+        <DialogTitle fontWeight="bold">Add More Classes</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 3 }}>
+            Select how many classes you want to add for "{course.title}".
+          </DialogContentText>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 2,
+              my: 2,
+            }}
+          >
+            <IconButton onClick={handleDecrease} aria-label="decrease classes">
+              <Minus />
+            </IconButton>
+            <Typography variant="h4" component="span" sx={{ minWidth: "60px", textAlign: "center" }}>
+              {classesToAdd}
+            </Typography>
+            <IconButton onClick={handleIncrease} aria-label="increase classes">
+              <Plus />
+            </IconButton>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: '0 24px 20px' }}>
+          <Button onClick={handleCloseModal} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleProcessPayment}
+            variant="contained"
+            disabled={isProcessing}
+          >
+            {isProcessing ? <CircularProgress size={24} color="inherit" /> : `Process (₹${totalPrice.toFixed(2)})`}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

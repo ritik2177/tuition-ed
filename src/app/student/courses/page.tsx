@@ -159,7 +159,7 @@ export default function MyCoursesPage() {
           <h3 className="text-2xl font-bold text-gray-800 mb-6">Your Progress</h3>
           <div className="bg-indigo-50 p-6 rounded-xl mb-6 text-center">
             <img
-              src="https://illustrations.popsy.co/violet/student-with-a-backpack-and-a-book.svg"
+              src="/courses.jpg"
               alt="Student Illustration"
               className="w-32 mx-auto mb-4"
             />
