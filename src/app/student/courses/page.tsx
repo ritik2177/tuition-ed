@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { CircularProgress, Alert, Box } from "@mui/material";
 
 interface ICourse {
@@ -67,8 +68,9 @@ export default function MyCoursesPage() {
           {courses.length > 0 ? (
             <div className="flex flex-col gap-8">
               {courses.map((course) => (
-                <div
+                <Link
                   key={course._id}
+                  href={`/student/courses/${course._id}`}
                   className="w-full bg-gradient-to-r from-white to-gray-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 flex flex-col md:flex-row overflow-hidden"
                 >
                   <div className="flex flex-col justify-between p-8 flex-1">
@@ -126,21 +128,25 @@ export default function MyCoursesPage() {
                         </p>
                       </div>
 
-                      <a
-                        href={course.joinLink || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
                         className={`block w-[200px] text-center py-3 rounded-lg font-semibold transition-all duration-300 ${
                           course.joinLink
                             ? "bg-indigo-600 text-white hover:bg-indigo-700"
                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
                         }`}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent parent Link navigation
+                          if (course.joinLink) {
+                            window.open(course.joinLink, "_blank", "noopener,noreferrer");
+                          }
+                        }}
+                        disabled={!course.joinLink}
                       >
                         {course.joinLink ? "Join Class" : "Link not available"}
-                      </a>
+                      </button>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (

@@ -10,7 +10,7 @@ export interface IDemoClass extends Document {
   city: string;
   country: string;
   date: Date;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  status: 'Demo pending' | 'confirmed' | 'completed' | 'cancelled';
 }
 
 const DemoClassSchema: Schema = new Schema({

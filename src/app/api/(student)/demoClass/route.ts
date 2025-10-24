@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect'; // Assuming you have a db connection utility
+import dbConnect from '@/lib/dbConnect'; 
 import DemoClass from '@/models/DemoClass';
+import User from '@/models/User';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import nodemailer from 'nodemailer';
@@ -18,8 +19,18 @@ export async function GET(request: Request) {
 
     await dbConnect();
 
-    const demoClasses = await DemoClass.find({ studentId: session.user.id }).sort({ date: -1 });
+    let demoClasses;
 
+    // If the user is an admin, fetch all demo classes. Otherwise, fetch only their own.
+    if (session.user.role === 'admin') {
+      demoClasses = await DemoClass.find({})
+        .populate({ path: 'studentId', model: User, select: 'email fullName' })
+        .sort({ date: -1 });
+    } else {
+      demoClasses = await DemoClass.find({ studentId: session.user.id }).sort({ date: -1 });
+    }
+
+    // The data is returned as a plain array, not nested in a `data` property.
     return NextResponse.json(demoClasses);
   } catch (error: any) {
     console.error('API GET Error:', error);

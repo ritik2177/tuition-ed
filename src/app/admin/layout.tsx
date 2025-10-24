@@ -24,6 +24,7 @@ const navItems = [
   { text: 'Courses', icon: <BookOpen size={20} />, href: '/admin/courses' },
   { text: 'Students', icon: <Users size={20} />, href: '/admin/students' },
   { text: 'Teachers', icon: <School size={20} />, href: '/admin/teachers' },
+  { text: 'Trail Classes', icon: <School size={20} />, href: '/admin/democlass-student' },
 ];
 
 export default function AdminLayout({
