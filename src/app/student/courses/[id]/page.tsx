@@ -36,7 +36,7 @@ import "react-day-picker/dist/style.css";
 import { toast } from "sonner";
 import { type RazorpayOptions } from "@/types/global";
 
-interface ICourse {
+interface ICourse { 
   _id: string;
   title: string;
   description: string;
