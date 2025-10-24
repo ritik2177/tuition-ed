@@ -34,34 +34,7 @@ import {
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { toast } from "sonner";
-
-interface RazorpayOptions {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description: string;
-  order_id: string;
-  handler: (response: RazorpayResponse) => void;
-  prefill: {
-    name?: string | null;
-    email?: string | null;
-    contact?: string | null;
-  };
-  theme: {
-    color: string;
-  };
-}
-
-interface RazorpayResponse {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
-}
-
-declare global {
-  interface Window { Razorpay?: new (options: RazorpayOptions) => { open: () => void }; }
-}
+import { type RazorpayOptions } from "@/types/global";
 
 interface ICourse {
   _id: string;
@@ -194,7 +167,7 @@ export default function CourseDetailPage() {
         name: "Tuition ED",
         description: `Payment for ${classesToAdd} extra classes for ${course.title}`,
         order_id: order.id,
-        handler: async function (response) {
+        handler: async function (response: { razorpay_payment_id: any; razorpay_order_id: any; razorpay_signature: any; }) {
           // 3. Verify payment and update database
           const updateRes = await fetch("/api/student-courses/update-classes", {
             method: "POST",
@@ -219,9 +192,9 @@ export default function CourseDetailPage() {
           }
         },
         prefill: {
-          name: session.user.name,
-          email: session.user.email,
-          contact: (session.user as any).mobile, // Assuming mobile is available
+          name: session.user.name ?? "",
+          email: session.user.email ?? "",
+          contact: (session.user as any).mobile || "",
         },
         theme: { color: "#4f46e5" }, // Indigo color
       };
@@ -241,7 +214,7 @@ export default function CourseDetailPage() {
     }
   };
 
-  const totalPrice = classesToAdd * course.perClassPrice;
+  const totalPrice = course ? classesToAdd * course.perClassPrice : 0;
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">

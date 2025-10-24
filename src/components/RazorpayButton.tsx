@@ -3,36 +3,7 @@
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-
-interface RazorpayOptions {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description: string;
-  order_id: string;
-  handler: (response: RazorpayResponse) => void;
-  prefill: {
-    name?: string;
-    email?: string;
-    contact?: string;
-  };
-  theme: {
-    color: string;
-  };
-}
-
-interface RazorpayResponse {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
-}
-
-declare global {
-  interface Window {
-    Razorpay?: new (options: RazorpayOptions) => { open: () => void; };
-  }
-}
+import { type RazorpayOptions, type RazorpayResponse } from "@/types/global";
 
 export default function PayButton({ amount, bookingId }: { amount: number; bookingId: string }) {
 
@@ -76,7 +47,7 @@ export default function PayButton({ amount, bookingId }: { amount: number; booki
       prefill: {
         name: session.user.name || "",
         email: session.user.email || "",
-        contact: session.user.mobile || "",
+        contact: (session.user as any).mobile || "",
       },
       theme: { color: "#8b5cf6" },
     };
