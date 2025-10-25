@@ -139,7 +139,7 @@ export default function StudentDashboardPage() {
             </Box>
           ) : assignedCourses.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {assignedCourses.map((course) => (
+              {assignedCourses.slice(0, 3).map((course) => (
                 <Card key={course._id} className="flex flex-col bg-gray-50/50 hover:shadow-md transition-shadow">
                   <CardHeader>
                     <div className="flex justify-between items-start">
