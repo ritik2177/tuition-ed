@@ -36,16 +36,18 @@ import {
 } from "@/components/ui/table";
 import { Typography } from "@mui/material"
 
-export type Student = {
+export type CourseData = {
   id: string
-  name: string
+  courseName: string
+  studentId?: string
+  studentName: string
   email: string
-  mobile: string
+  grade: string
 }
 
 export default function StudentDataTable() {
   const router = useRouter()
-  const [data, setData] = React.useState<Student[]>([])
+  const [data, setData] = React.useState<CourseData[]>([])
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -56,7 +58,7 @@ export default function StudentDataTable() {
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
-  const columns: ColumnDef<Student>[] = [
+  const columns: ColumnDef<CourseData>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -80,37 +82,48 @@ export default function StudentDataTable() {
       enableHiding: false,
     },
     {
-      accessorKey: "name",
+      accessorKey: "courseName",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Name
+            Course Name
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
       },
-      cell: ({ row }) => <div>{row.getValue("name")}</div>,
+      cell: ({ row }) => <div>{row.getValue("courseName")}</div>,
     },
     {
-      accessorKey: "id",
-      header: "Student ID",
+      accessorKey: "studentName",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Student Name
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => <div>{row.getValue("studentName")}</div>,
     },
     {
       accessorKey: "email",
       header: "Email",
     },
     {
-      accessorKey: "mobile",
-      header: "Mobile No.",
+      accessorKey: "grade",
+      header: "Grade",
     },
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const student = row.original
+        const course = row.original
   
         return (
           <DropdownMenu>
@@ -125,17 +138,17 @@ export default function StudentDataTable() {
                 className="cursor-pointer hover:text-purple-400"
               >Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(student.id)}
+                onClick={() => navigator.clipboard.writeText(course.id)}
                 className="cursor-pointer data-[highlighted]:bg-transparent data-[highlighted]:text-purple-400"
               >
-                Copy student ID
+                Copy Course ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => router.push(`/teacher/students/${student.id}`)}
+                onClick={() => router.push(`/teacher/students/${course.id}`)}
                 className="cursor-pointer data-[highlighted]:bg-transparent data-[highlighted]:text-purple-400"
               >
-                View student details
+                View course details
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -190,13 +203,13 @@ export default function StudentDataTable() {
 
   return (
     <div className="w-full">
-      <Typography variant="h4" gutterBottom>My Students</Typography>
+      <Typography variant="h4" gutterBottom>My Courses</Typography>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter by student name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("studentName")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("studentName")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

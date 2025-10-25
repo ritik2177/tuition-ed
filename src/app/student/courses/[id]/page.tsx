@@ -21,7 +21,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import {
   ArrowLeft,
-  Calendar,
+  Calendar as CalendarIcon,
   Clock,
   BookOpen,
   Video,
@@ -31,8 +31,7 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import { DayPicker } from "react-day-picker";
-import "react-day-picker/dist/style.css";
+import Calendar from "@/components/lightswind/calendar";
 import { toast } from "sonner";
 import { type RazorpayOptions } from "@/types/global";
 
@@ -52,6 +51,19 @@ interface ICourse {
   teacherId?: string;
   createdAt: string;
   updatedAt: string;
+  completedClasses?: CompletedClass[];
+}
+
+interface CompletedClass {
+  _id: string;
+  topic: string;
+  duration?: number;
+  completedAt: string;
+}
+
+interface ApiResponse {
+  course: ICourse;
+  completedClasses: CompletedClass[];
 }
 
 const statusColors = {
@@ -67,11 +79,13 @@ export default function CourseDetailPage() {
   const courseId = Array.isArray(params.id) ? params.id[0] : (params.id as string);
 
   const [course, setCourse] = useState<ICourse | null>(null);
+  const [completedClasses, setCompletedClasses] = useState<CompletedClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [classesToAdd, setClassesToAdd] = useState(1);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
 
   useEffect(() => {
     if (!courseId) return;
@@ -93,9 +107,14 @@ export default function CourseDetailPage() {
           const errorData = await response.json();
           throw new Error(errorData.message || "Failed to fetch course details.");
         }
-        const data: ICourse = await response.json();
-        if (data) {
-          setCourse(data);
+        const data: ApiResponse = await response.json();
+        if (data.course) {
+          setCourse(data.course);
+          setCompletedClasses(data.completedClasses || []);
+          const completedDays = (data.completedClasses || []).map(c => new Date(c.completedAt));
+          if (completedDays.length > 0) {
+            setCalendarMonth(completedDays[0]);
+          }
         } else {
           notFound();
         }
@@ -107,7 +126,7 @@ export default function CourseDetailPage() {
     };
 
     fetchCourseDetails();
-  }, [courseId]);
+  }, [courseId, notFound]);
 
   if (loading) {
     return (
@@ -167,7 +186,7 @@ export default function CourseDetailPage() {
         name: "Tuition ED",
         description: `Payment for ${classesToAdd} extra classes for ${course.title}`,
         order_id: order.id,
-        handler: async function (response: { razorpay_payment_id: any; razorpay_order_id: any; razorpay_signature: any; }) {
+        handler: async function (response) {
           // 3. Verify payment and update database
           const updateRes = await fetch("/api/student-courses/update-classes", {
             method: "POST",
@@ -215,6 +234,11 @@ export default function CourseDetailPage() {
   };
 
   const totalPrice = course ? classesToAdd * course.perClassPrice : 0;
+  const completedDays = completedClasses.map(c => new Date(c.completedAt));
+  const completedClassesCount = completedClasses.length;
+  const totalClasses = course.noOfClasses;
+  const remainingClasses = totalClasses - completedClassesCount;
+  const completionPercentage = totalClasses > 0 ? (completedClassesCount / totalClasses) * 100 : 0;
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -320,7 +344,7 @@ export default function CourseDetailPage() {
 
               {course.classDays && (
                 <Box display="flex" alignItems="center" gap={1.5}>
-                  <Calendar size={18} className="text-gray-500" />
+                  <CalendarIcon size={18} className="text-gray-500" />
                   <Typography variant="body2">{course.classDays?.join(", ")}</Typography>
                 </Box>
               )}
@@ -362,7 +386,7 @@ export default function CourseDetailPage() {
       {/* === PROGRESS SECTION === */}
       <Box mt={8}>
         <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Today's Progress <Info size={16} className="inline ml-1 text-gray-500" />
+          Classes Status <Info size={16} className="inline ml-1 text-gray-500" />
         </Typography>
 
         <Box
@@ -391,20 +415,20 @@ export default function CourseDetailPage() {
             <Box textAlign="center">
               <CircularProgress
                 variant="determinate"
-                value={0}
+                value={completionPercentage}
                 size={120}
                 thickness={4}
-                sx={{ color: "#b3e0ff" }}
+                sx={{ color: "#22c55e" }} // Green for completed
               />
               <Typography
                 variant="h6"
                 fontWeight="bold"
                 sx={{ position: "relative", top: "-70px" }}
               >
-                0
+                {completedClassesCount}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: -6 }}>
-                Mins Video Watched
+                Classes Completed
               </Typography>
             </Box>
 
@@ -414,20 +438,20 @@ export default function CourseDetailPage() {
             <Box textAlign="center">
               <CircularProgress
                 variant="determinate"
-                value={0}
+                value={completionPercentage}
                 size={120}
                 thickness={4}
-                sx={{ color: "#c6f6d5" }}
+                sx={{ color: "#f59e0b" }} // Amber for remaining
               />
               <Typography
                 variant="h6"
                 fontWeight="bold"
                 sx={{ position: "relative", top: "-70px" }}
               >
-                0
+                {remainingClasses}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: -6 }}>
-                Questions Attempted
+                Remaining Classes
               </Typography>
             </Box>
           </Paper>
@@ -450,26 +474,45 @@ export default function CourseDetailPage() {
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Monthly Progress <Info size={14} className="inline ml-1 text-gray-500" />
             </Typography>
-            <DayPicker
-              mode="single"
-              styles={{
-                root: {
-                  width: '100%',
-                  maxWidth: '280px', // Constrain calendar width
-                },
-              }}
-              month={new Date(2025, 9)} // October 2025
-              selected={new Date(2025, 9, 15)}
-              modifiers={{
-                completed: [new Date(2025, 9, 2), new Date(2025, 9, 3), new Date(2025, 9, 15)],
-              }}
+            <Calendar
+              mode="multiple"
+              month={calendarMonth}
+              onMonthChange={setCalendarMonth}
+              modifiers={{ completed: completedDays }}
               modifiersStyles={{
-                completed: { color: "green" },
+                completed: { color: "white", backgroundColor: '#22c55e', borderRadius: '50%' },
               }}
             />
           </Paper>
         </Box>
       </Box>
+
+      
+      {/* === COMPLETED CLASSES SECTION === */}
+      <Box mt={8}>
+        <Typography variant="h5" fontWeight="bold" gutterBottom>
+          Completed Class History
+        </Typography>
+        <div className="space-y-4">
+          {completedClasses.length > 0 ? (
+            completedClasses.map((c) => (
+              <Paper key={c._id} variant="outlined" sx={{ p: 2, borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="body1" fontWeight="medium">{c.topic}</Typography>
+                <Box textAlign="right">
+                  <Typography variant="body2" color="text.secondary">
+                    {new Date(c.completedAt).toLocaleDateString()}
+                  </Typography>
+                  {c.duration && <Typography variant="caption" color="text.secondary">{c.duration} mins</Typography>}
+                </Box>
+              </Paper>
+            ))
+          ) : (
+            <Alert severity="info">No classes have been marked as complete for this course yet.</Alert>
+          )}
+        </div>
+      </Box>
+
+
 
       {/* === ADD CLASSES MODAL === */}
       <Dialog open={isModalOpen} onClose={handleCloseModal} PaperProps={{ sx: { borderRadius: 4 } }}>
