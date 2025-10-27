@@ -6,6 +6,8 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable');
 }
 interface MongooseCache {
+  // Error: any;
+  // Types: any;
   conn: Mongoose | null;
   promise: Promise<Mongoose> | null;
 }

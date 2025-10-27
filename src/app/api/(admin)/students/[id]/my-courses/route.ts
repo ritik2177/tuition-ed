@@ -58,6 +58,7 @@ export async function POST(
       teacherId,
       classDays,
       joinLink,
+      classroomLink,
     } = body;
 
     if (!title || !description || !grade || !noOfClasses || !perClassPrice || !teacherId) {
@@ -88,6 +89,7 @@ export async function POST(
       classTime,
       classDays,
       joinLink,
+      classroomLink,
       studentId: student._id,
       teacherId: teacher._id,
     });

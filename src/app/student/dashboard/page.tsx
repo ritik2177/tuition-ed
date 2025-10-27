@@ -26,6 +26,7 @@ interface AssignedCourse {
   classTime: string;
   classDays: string;
   joinLink: string;
+  classroomLink?: string;
   paymentStatus: 'completed' | 'pending';
 }
 
@@ -140,26 +141,34 @@ export default function StudentDashboardPage() {
           ) : assignedCourses.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {assignedCourses.slice(0, 3).map((course) => (
-                <Card key={course._id} className="flex flex-col bg-gray-50/50 hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg">{course.title}</CardTitle>
-                      <Badge variant={course.paymentStatus === 'completed' ? 'default' : 'destructive'}>
-                        {course.paymentStatus}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">with {course.teacherName || 'TBD'}</p>
+                <Card key={course._id} className="flex flex-col bg-card hover:bg-muted/40 transition-colors group">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">{course.title}</CardTitle>
+                    <p className="text-sm text-muted-foreground pt-1">
+                      <span className="font-medium">Teacher:</span> {course.teacherName || 'TBD'}
+                    </p>
                   </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span>{course.classDays || 'Not set'}</span></div>
-                    <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /><span>{course.classTime || 'Not set'}</span></div>
+                  <CardContent className="space-y-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">{course.classDays || 'Not set'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">{course.classTime || 'Not set'}</span>
+                    </div>
                   </CardContent>
-                  <div className="p-4 pt-0 mt-auto">
-                    <a href={course.joinLink} target="_blank" rel="noopener noreferrer">
-                      <Button className="w-full" disabled={!course.joinLink}>
-                        {course.joinLink ? 'Join Class' : 'Link not available'}
+                  <div className="p-6 pt-4 mt-auto flex flex-col sm:flex-row gap-2">
+                    <Link href={`/student/courses/${course._id}`} className="w-full">
+                      <Button className="w-full" variant="outline">
+                        View Dashboard
                       </Button>
-                    </a>
+                    </Link>
+                    {/* <Button asChild variant="secondary" className="w-full" disabled={!course.classroomLink}>
+                      <a href={course.classroomLink || '#'} target="_blank" rel="noopener noreferrer">
+                        Visit Classroom
+                      </a>
+                    </Button> */}
                   </div>
                 </Card>
               ))}
@@ -191,7 +200,9 @@ export default function StudentDashboardPage() {
                         {demo.status}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">with {demo.teacherName || 'TBD'}</p>
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-medium">Teacher:</span> {demo.teacherName || 'TBD'}
+                      </p>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm mt-auto">
                     <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span>{new Date(demo.date).toLocaleDateString()}</span></div>

@@ -1,37 +1,44 @@
-import "next-auth";
-import "next-auth/jwt";
+import 'next-auth';
+import { DefaultSession, DefaultUser } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
 
-declare module "next-auth" {
+/**
+ * Module augmentation for "next-auth" to add custom properties to the session and user objects.
+ */
+declare module 'next-auth' {
   /**
-   * Augment the default User model to include our custom fields
-   */
-  interface User {
-    role?: 'student' | 'teacher' | 'admin';
-    id?: string;
-    isVerified?: boolean;
-    fullName?: string;
-    email?: string;
-    mobile?: string;
-  }
-
-  /**
-   * Augment the default Session to include the custom user object
+   * Extends the default Session interface to include custom user properties.
    */
   interface Session {
     user: {
-      role?: 'student' | 'teacher' | 'admin';
-    } & User;
+      id: string;
+      role: string;
+      isVerified: boolean;
+      fullName: string;
+      mobile?: string;
+    } & DefaultSession['user'];
+  }
+
+  /**
+   * Extends the default User interface.
+   */
+  interface User extends DefaultUser {
+    role: string;
+    isVerified: boolean;
+    fullName: string;
+    mobile?: string;
   }
 }
 
-declare module "next-auth/jwt" {
-  /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+/**
+ * Module augmentation for "next-auth/jwt" to add custom properties to the JWT token.
+ */
+declare module 'next-auth/jwt' {
   interface JWT {
-    id?: string;
-    role?: 'student' | 'teacher' | 'admin';
-    isVerified?: boolean;
-    fullName?: string;
-    email?: string;
+    id: string;
+    role: string;
+    isVerified: boolean;
+    fullName: string;
     mobile?: string;
   }
 }

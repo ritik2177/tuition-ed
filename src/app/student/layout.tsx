@@ -71,7 +71,7 @@ export default function StudentLayout({
       <Divider />
       <List sx={{ marginTop: 'auto' }}>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => signOut({ callbackUrl: '/' })}>
+          <ListItemButton onClick={() => signOut({ callbackUrl: process.env.NEXT_PUBLIC_BASE_URL })}>
             <ListItemIcon><LogOut size={20} /></ListItemIcon>
             <ListItemText primary="Logout" />
           </ListItemButton>

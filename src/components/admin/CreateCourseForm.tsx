@@ -26,6 +26,7 @@ interface CourseFormValues {
   noOfClasses: number;
   perClassPrice: number;
   joinLink?: string;
+  classroomLink?: string;
 }
 
 interface CreateCourseFormProps {
@@ -48,6 +49,7 @@ export default function CreateCourseForm({ studentId, onCourseCreated }: CreateC
       noOfClasses: 8,
       perClassPrice: 500,
       joinLink: '',
+      classroomLink: '',
     },
   });
 
@@ -93,19 +95,19 @@ export default function CreateCourseForm({ studentId, onCourseCreated }: CreateC
 
   return (
     <Form {...form} >
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid md:grid-cols-2 gap-x-6 gap-y-4 backdrop-blur-3xl">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid md:grid-cols-4 gap-x-6 gap-y-4 backdrop-blur-3xl">
         {/* Course Title */}
-        <div key="title">
+        <div key="title" className="md:col-span-2">
           <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="e.g., Mathematics" {...field} /></FormControl><FormMessage /></FormItem>)} />
         </div>
 
         {/* Grade */}
-        <div key="grade">
+        <div key="grade" className="md:col-span-2">
           <FormField control={form.control} name="grade" render={({ field }) => (<FormItem><FormLabel>Grade</FormLabel><FormControl><Input placeholder="e.g., 10th" {...field} /></FormControl><FormMessage /></FormItem>)} />
         </div>
 
         {/* Teacher Name */}
-        <div key="teacherId">
+        <div key="teacherId" className="md:col-span-2">
           <FormField control={form.control} name="teacherId" render={({ field }) => (
             <FormItem>
               <FormLabel>Teacher ID</FormLabel>
@@ -119,17 +121,17 @@ export default function CreateCourseForm({ studentId, onCourseCreated }: CreateC
         </div>
 
         {/* Class Time */}
-        <div key="classTime">
+        <div key="classTime" className="md:col-span-2">
           <FormField control={form.control} name="classTime" render={({ field }) => (<FormItem><FormLabel>Class Time</FormLabel><FormControl><Input placeholder="e.g., 5:00 PM - 6:00 PM" {...field} /></FormControl><FormMessage /></FormItem>)} />
         </div>
 
         {/* Description */}
-        <div key="description" className="md:col-span-2">
+        <div key="description" className="md:col-span-4">
           <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Course details..." {...field} /></FormControl><FormMessage /></FormItem>)} />
         </div>
 
         {/* Class Days */}
-        <div key="classDays" className="md:col-span-2">
+        <div key="classDays" className="md:col-span-4">
           <FormItem>
             <FormLabel>Class Days</FormLabel>
             <FormControl>
@@ -152,29 +154,40 @@ export default function CreateCourseForm({ studentId, onCourseCreated }: CreateC
         </div>
 
         {/* Number of Classes */}
-        <div key="noOfClasses">
+        <div key="noOfClasses" className="md:col-span-2">
           <FormField control={form.control} name="noOfClasses" render={({ field }) => (<FormItem><FormLabel>Number of Classes</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>)} />
         </div>
 
         {/* Price per Class */}
-        <div key="perClassPrice">
+        <div key="perClassPrice" className="md:col-span-2">
           <FormField control={form.control} name="perClassPrice" render={({ field }) => (<FormItem><FormLabel>Price per Class</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>)} />
         </div>
 
-        {/* Join Link */}
-        <div key="joinLink" className="md:col-span-2">
-          <FormField control={form.control} name="joinLink" render={({ field }) => (
-            <FormItem>
-              <FormLabel>Join Link (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., https://meet.google.com/xyz-abc-def" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>)} />
+        {/* Join & Classroom Links */}
+        <div className="md:col-span-4 flex flex-col md:flex-row gap-x-6 gap-y-4">
+          <div key="joinLink" className="flex-1">
+            <FormField control={form.control} name="joinLink" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Join Link (Optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., https://meet.google.com/..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>)} />
+          </div>
+          <div key="classroomLink" className="flex-1">
+            <FormField control={form.control} name="classroomLink" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Classroom Link (Optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., https://classroom.google.com/..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>)} />
+          </div>
         </div>
-
         {/* Submit Button */}
-        <div key="submit" className="md:col-span-2">
+        <div key="submit" className="md:col-span-4">
           <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? (
             <> <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating... </>

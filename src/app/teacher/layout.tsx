@@ -23,7 +23,7 @@ const drawerWidth = 240;
 
 const navItems = [
   { text: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/teacher/dashboard' },
-  { text: 'Students', icon: <BookOpen size={20} />, href: '/teacher/students' },
+  { text: 'Courses', icon: <BookOpen size={20} />, href: '/teacher/courses' },
   { text: 'Profile', icon: <User size={20} />, href: '/teacher/profile' },
 ];
 
@@ -71,7 +71,7 @@ export default function TeacherLayout({
       <Divider />
       <List sx={{ marginTop: 'auto' }}>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => signOut({ callbackUrl: '/' })}>
+          <ListItemButton onClick={() => signOut({ callbackUrl: process.env.NEXT_PUBLIC_BASE_URL })}>
             <ListItemIcon><LogOut size={20} /></ListItemIcon>
             <ListItemText primary="Logout" />
           </ListItemButton>

@@ -4,7 +4,7 @@ import { User as NextAuthUser } from "next-auth";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import { IUser } from "@/models/User";
-import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -86,9 +86,21 @@ export const authOptions: AuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Allow redirect to the external URL for logout
+      if (url === process.env.NEXT_PUBLIC_BASE_URL) {
+        return url;
+      }
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
   pages: {
-    signIn: '/', // Redirect to home page for sign-in
+    signIn: '/',
+    signOut: '/',// Redirect to home page for sign-in
   },
   session: { 
     strategy: "jwt",

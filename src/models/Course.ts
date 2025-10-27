@@ -11,6 +11,7 @@ export interface ICourse extends Document {
   noOfClasses: number;
   perClassPrice: number;
   joinLink: string;
+  classroomLink?: string;
   teacherId: Types.ObjectId;
   paymentStatus?: 'pending' | 'completed' | 'failed';
   createdAt: Date;
@@ -26,6 +27,7 @@ const CourseSchema: Schema = new Schema({
   noOfClasses: { type: Number, required: true },
   perClassPrice: { type: Number, required: true },
   joinLink: { type: String },
+  classroomLink: { type: String },
   studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   teacherId: { type: Schema.Types.ObjectId, ref: 'User' }, // Optional teacher assignment
   paymentStatus: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },

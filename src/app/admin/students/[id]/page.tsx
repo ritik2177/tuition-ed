@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -111,11 +112,11 @@ export default function StudentDetailPage({
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="w-fit">
+              <Button className="">
                 <PlusCircle className="mr-2 h-5 w-5" /> Create Course
               </Button>
             </DialogTrigger>
-            <DialogContent className="backdrop-blur-3xl">
+            <DialogContent className="backdrop-blur-3xl sm:max-w-3xl">
               <DialogHeader>
                 <DialogTitle>Create a new course for {student.name}</DialogTitle>
               </DialogHeader>
@@ -135,7 +136,7 @@ export default function StudentDetailPage({
           {courses.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {courses.map((course) => (
-                <Card key={course._id.toString()} className="bg-muted/40">
+                <Card key={course._id.toString()} className="bg-muted/40 flex flex-col">
                   <CardHeader className="flex-row items-start justify-between p-4">
                     <div>
                       <CardTitle className="text-lg font-semibold">
@@ -158,6 +159,11 @@ export default function StudentDetailPage({
                   <CardContent className="p-4 pt-0 text-sm space-y-1">
                     <p>Total Classes: {course.noOfClasses}</p>
                     <p>Price: ${course.perClassPrice}/class</p>
+                  </CardContent>
+                  <CardContent className="p-4 pt-0 mt-auto">
+                    <Link href={`/admin/students/${student._id}/${course._id}`} className="w-full">
+                      <Button variant="outline" className="w-full">View Details</Button>
+                    </Link>
                   </CardContent>
                 </Card>
               ))}

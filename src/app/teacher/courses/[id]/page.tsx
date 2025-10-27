@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent, use } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Typography,
@@ -20,6 +20,8 @@ import {
   IconButton
 } from "@mui/material";
 import { toast } from "sonner";
+import CourseMessageModal from "@/components/CourseMessageModal";
+import Link from "next/link";
 import {
   User,
   Mail,
@@ -28,6 +30,8 @@ import {
   Clock,
   PlusCircle,
   X,
+  ArrowLeft,
+  MessageSquare,
 } from "lucide-react";
 
 interface Student {
@@ -60,7 +64,6 @@ interface ApiResponse {
 
 export default function CourseDetailsPage() {
   const { id: courseId } = useParams();
-  const router = useRouter();
 
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,6 +74,7 @@ export default function CourseDetailsPage() {
   const [duration, setDuration] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
   // Fetch data
   const fetchCourseDetails = async () => {
@@ -174,6 +178,17 @@ export default function CourseDetailsPage() {
 
   return (
     <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
+      <Button
+        component={Link}
+        href="/teacher/students"
+        startIcon={<ArrowLeft size={16} />}
+        sx={{
+          mb: 3,
+          color: 'text.secondary'
+        }}
+      >
+        Back to Students
+      </Button>
       {/* Header */}
       <Box
         sx={{
@@ -198,6 +213,15 @@ export default function CourseDetailsPage() {
             Grade: {course.grade}
           </Typography>
         </Box>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+          <Button
+            variant="contained"
+            color="info"
+            startIcon={<MessageSquare />}
+            onClick={() => setIsMessageModalOpen(true)}
+          >
+            Message Student
+          </Button>
         <Button
           variant="contained"
           color="secondary"
@@ -215,6 +239,7 @@ export default function CourseDetailsPage() {
         >
           {course.noOfClasses > 0 ? "Mark Class" : "No Classes Left"}
         </Button>
+        </Box>
       </Box>
 
       {/* Layout Grid */}
@@ -428,6 +453,15 @@ export default function CourseDetailsPage() {
           </DialogActions>
         </form>
       </Dialog>
+
+      {/* Message Modal */}
+      {data && (
+        <CourseMessageModal
+          courseId={course._id}
+          open={isMessageModalOpen}
+          onClose={() => setIsMessageModalOpen(false)}
+        />
+      )}
     </Box>
   );
 }
