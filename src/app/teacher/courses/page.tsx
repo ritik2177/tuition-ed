@@ -145,7 +145,7 @@ export default function StudentDataTable() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => router.push(`/teacher/students/${course.id}`)}
+                onClick={() => router.push(`/teacher/courses/${course.id}`)}
                 className="cursor-pointer data-[highlighted]:bg-transparent data-[highlighted]:text-purple-400"
               >
                 View course details
