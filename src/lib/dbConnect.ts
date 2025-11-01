@@ -1,13 +1,11 @@
 import mongoose, { Mongoose } from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
+const MONGODB_URI = 'mongodb+srv://ritik123:ritik1234@cluster0.ekoze50.mongodb.net/';
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable');
 }
 interface MongooseCache {
-  // Error: any;
-  // Types: any;
   conn: Mongoose | null;
   promise: Promise<Mongoose> | null;
 }

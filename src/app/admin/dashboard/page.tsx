@@ -13,7 +13,6 @@ import {
   Avatar,
   ListItemText,
   Divider,
-  Chip,
 } from "@mui/material";
 import {
   Users,
