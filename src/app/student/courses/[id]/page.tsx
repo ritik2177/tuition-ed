@@ -521,7 +521,7 @@ export default function CourseDetailPage() {
           rel="noopener noreferrer"
           variant="contained"
           startIcon={<Video />}
-          disabled={!course.joinLink}
+          disabled={!course.joinLink || course.noOfClasses <= 0}
         >
           Join Class
         </Button>
@@ -531,7 +531,7 @@ export default function CourseDetailPage() {
           color="secondary"
           size="large"
           {...(course.classroomLink ? { href: course.classroomLink, target: "_blank" } : {})}
-          disabled={!course.classroomLink}
+          disabled={!course.classroomLink || course.noOfClasses <= 0}
         >
           Visit Classroom
         </Button>
