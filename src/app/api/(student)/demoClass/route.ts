@@ -142,3 +142,42 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized. Admins only.' },
+        { status: 403 }
+      );
+    }
+
+    await dbConnect();
+
+    const { id, status } = await request.json();
+
+    if (!id || !status) {
+      return NextResponse.json(
+        { success: false, message: 'Demo Class ID and status are required.' },
+        { status: 400 }
+      );
+    }
+
+    const updatedDemoClass = await DemoClass.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedDemoClass) {
+      return NextResponse.json({ success: false, message: 'Demo Class not found.' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, data: updatedDemoClass }, { status: 200 });
+  } catch (error: any) {
+    console.error('API PUT Error:', error);
+    return NextResponse.json({ success: false, message: 'Server Error' }, { status: 500 });
+  }
+}

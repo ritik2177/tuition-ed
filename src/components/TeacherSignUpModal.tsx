@@ -10,6 +10,8 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { X } from 'lucide-react';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Autocomplete, Chip, Stack } from '@mui/material';
+import { School } from 'lucide-react';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -37,6 +39,9 @@ const TeacherSignUpModal: React.FC<TeacherSignUpModalProps> = ({ open, onClose }
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
+  const [qualification, setQualification] = useState('');
+  const [experiance, setExperiance] = useState('');
+  const [listOfSubjects, setListOfSubjects] = useState<string[]>([]);
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -75,7 +80,7 @@ const TeacherSignUpModal: React.FC<TeacherSignUpModalProps> = ({ open, onClose }
       const res = await fetch('/api/auth/teacher-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, mobile }),
+        body: JSON.stringify({ fullName, email, mobile, qualification, experiance, listOfSubjects }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to send OTP.');
@@ -119,22 +124,47 @@ const TeacherSignUpModal: React.FC<TeacherSignUpModalProps> = ({ open, onClose }
   return (
     <Modal open={open} onClose={handleClose} aria-labelledby="teacher-signup-modal-title">
       <Box sx={style}>
-        <Box sx={{ width: { xs: '100%', md: 300 }, p: 4, bgcolor: '#fff', color: '#000', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-          <Typography variant="h4" component="h2" sx={{ fontWeight: 'bold' }}>Tuition-ed</Typography>
-          <Typography variant="h5" sx={{ mt: 2 }}>Teacher Sign Up</Typography>
+        <Box sx={{ width: { xs: '100%', md: 300 }, p: 4, bgcolor: 'primary.main', color: 'primary.contrastText', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+          <School size={64} />
+          <Typography variant="h5" component="h2" sx={{ mt: 2, fontWeight: 'bold' }}>
+            Join Our Team
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1, opacity: 0.8 }}>
+            Share your knowledge and inspire the next generation of learners.
+          </Typography>
         </Box>
-        <Box sx={{ p: 4, position: 'relative', width: { xs: '100%', md: 400 }, bgcolor: '#000', color: '#fff' }}>
-          <IconButton onClick={handleClose} sx={{ position: 'absolute', top: 8, right: 8 }}><X /></IconButton>
+        <Box sx={{ p: 4, position: 'relative', width: { xs: '100%', md: 450 }, bgcolor: '#1f2937', color: '#fff' }}>
+          <IconButton onClick={handleClose} sx={{ position: 'absolute', top: 8, right: 8, color: 'grey.500' }}><X /></IconButton>
           {step === 'details' && (
-            <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 4 }}>
-              <Typography variant="h6" component="h3">Become a Teacher</Typography> {error && <Typography color="error" variant="body2">{error}</Typography>}
-              <TextField label="Full Name" variant="outlined" fullWidth value={fullName} onChange={(e) => setFullName(e.target.value)} sx={textFieldStyles} />
-              <TextField label="Email ID" variant="outlined" fullWidth type="email" value={email} onChange={(e) => setEmail(e.target.value)} sx={textFieldStyles} />
+            <Stack component="form" spacing={2.5} sx={{ mt: 4 }}>
+              <Typography variant="h6" component="h3">Become a Teacher</Typography>
+              {error && <Typography color="error" variant="body2">{error}</Typography>}
+              <TextField label="Full Name" variant="outlined" fullWidth required value={fullName} onChange={(e) => setFullName(e.target.value)} sx={textFieldStyles} />
+              <TextField label="Email ID" variant="outlined" fullWidth required type="email" value={email} onChange={(e) => setEmail(e.target.value)} sx={textFieldStyles} />
               <TextField label="Mobile Number" variant="outlined" fullWidth type="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} sx={textFieldStyles} />
-              <Button variant="contained" onClick={handleVerify} disabled={loading} sx={{ mt: 2, bgcolor: '#fff', color: '#000', '&:hover': { bgcolor: '#eee' } }}>
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify and Process'}
+              <TextField label="Highest Qualification" variant="outlined" fullWidth value={qualification} onChange={(e) => setQualification(e.target.value)} sx={textFieldStyles} />
+              <TextField label="Years of Experience" variant="outlined" fullWidth value={experiance} onChange={(e) => setExperiance(e.target.value)} sx={textFieldStyles} />
+              <Autocomplete
+                multiple
+                freeSolo
+                options={[]}
+                value={listOfSubjects}
+                onChange={(event, newValue) => {
+                  setListOfSubjects(newValue);
+                }}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip variant="outlined" label={option} {...getTagProps({ index })} sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }} />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField {...params} variant="outlined" label="Subjects You Teach" placeholder="Type a subject and press Enter" sx={textFieldStyles} />
+                )}
+              />
+              <Button variant="contained" onClick={handleVerify} disabled={loading} sx={{ mt: 2, bgcolor: 'primary.main', color: 'primary.contrastText', '&:hover': { bgcolor: 'primary.dark' } }}>
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Get OTP'}
               </Button>
-            </Box>
+            </Stack>
           )}
           {step === 'otp' && (
             <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 4 }}>
@@ -148,7 +178,7 @@ const TeacherSignUpModal: React.FC<TeacherSignUpModalProps> = ({ open, onClose }
                 sx={textFieldStyles}
                 inputProps={{ maxLength: 6, style: { textAlign: 'center', letterSpacing: '0.5rem' } }}
               />
-              <Button variant="contained" onClick={handleSignUp} disabled={loading} sx={{ mt: 2, bgcolor: '#fff', color: '#000', '&:hover': { bgcolor: '#eee' } }}>
+              <Button variant="contained" onClick={handleSignUp} disabled={loading} sx={{ mt: 2, bgcolor: 'primary.main', color: 'primary.contrastText', '&:hover': { bgcolor: 'primary.dark' } }}>
                 {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}
               </Button>
             </Box>

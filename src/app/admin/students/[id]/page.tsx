@@ -1,11 +1,28 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Hash, PlusCircle } from "lucide-react";
+import {
+  Box,
+  Paper,
+  Typography,
+  CircularProgress,
+  Alert,
+  Button,
+  Divider,
+  Avatar,
+  Chip,
+} from "@mui/material";
+import {
+  Mail,
+  Phone,
+  PlusCircle,
+  Cake,
+  User,
+  MapPin,
+  GraduationCap,
+  Globe,
+  ArrowRight,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,17 +30,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import CreateCourseForm from "@/components/admin/CreateCourseForm";
-import { Alert, CircularProgress } from "@mui/material";
 import { ICourse } from "@/models/Course";
-import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 export type StudentFromAPI = {
   _id: string;
   name: string;
   email: string;
   mobile?: string;
+  dateOfBirth?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  };
+  grade?: string;
+  fatherName?: string;
+  country?: string;
 };
 
 export default function StudentDetailPage({
@@ -77,104 +102,124 @@ export default function StudentDetailPage({
     return <Alert severity="warning">No student data found.</Alert>;
   }
 
+  const InfoItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string | null }) => (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1 }}>
+      <Box sx={{ color: 'text.secondary' }}>{icon}</Box>
+      <Box>
+        <Typography variant="body2" color="text.secondary">{label}</Typography>
+        <Typography variant="body1" fontWeight="medium">{value || 'N/A'}</Typography>
+      </Box>
+    </Box>
+  );
+
   return (
-    <div className="w-full min-h-screen bg-background p-6">
-      <Card className="w-full shadow-lg border border-border">
-        {/* Header */}
-        <CardHeader className="bg-muted/20 p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <Avatar className="h-24 w-24 border-2 border-primary">
-              <AvatarImage
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
+        {/* Left Column - Student Details */}
+        <Box sx={{ flex: '1 1 400px', minWidth: 300 }}>
+          <Paper
+            elevation={0}
+            className="border-2 border-blue-500"
+            sx={{ p: 3, borderRadius: 4, bgcolor: '#1f2937', height: '100%' }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
+              <Avatar
                 src={`https://api.dicebear.com/7.x/initials/svg?seed=${student.name}`}
-                alt={student.name}
-              />
-              <AvatarFallback className="text-3xl">
+                sx={{ width: 80, height: 80, fontSize: '2.5rem' }}
+              >
                 {student.name.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <CardTitle className="text-4xl font-bold">{student.name}</CardTitle>
-              <p className="text-sm text-muted-foreground flex items-center gap-2 mt-2">
-                <Hash className="h-4 w-4" /> <span>{student._id}</span>
-              </p>
-              <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  {student.email}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  {student.mobile || "Not provided"}
-                </div>
-              </div>
-            </div>
-          </div>
+              </Avatar>
+              <Box>
+                <Typography variant="h4" fontWeight="bold">{student.name}</Typography>
+                <Typography variant="body1" color="text.secondary">{student.email}</Typography>
+              </Box>
+            </Box>
+            <Divider sx={{ my: 2 }} />
+            <InfoItem icon={<Phone size={20} />} label="Mobile" value={student.mobile} />
+            <InfoItem icon={<User size={20} />} label="Father's Name" value={student.fatherName} />
+            <InfoItem icon={<Cake size={20} />} label="Date of Birth" value={student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString() : 'N/A'} />
+            <InfoItem icon={<GraduationCap size={20} />} label="Grade" value={student.grade} />
+            <InfoItem icon={<Globe size={20} />} label="Country" value={student.country} />
+            <InfoItem icon={<MapPin size={20} />} label="Address" value={`${student.address?.street || ''} ${student.address?.city || ''} ${student.address?.state || ''}`.trim() || 'N/A'} />
+          </Paper>
+        </Box>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="">
-                <PlusCircle className="mr-2 h-5 w-5" /> Create Course
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="backdrop-blur-3xl sm:max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>Create a new course for {student.name}</DialogTitle>
-              </DialogHeader>
-              <CreateCourseForm
-                studentId={student._id}
-                onCourseCreated={() => setIsDialogOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-
-        {/* Content */}
-        <CardContent className="p-8">
-          <h3 className="text-2xl font-semibold mb-4">Enrolled Courses</h3>
-          <Separator className="mb-6" />
-
-          {courses.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <Card key={course._id.toString()} className="bg-muted/40 flex flex-col">
-                  <CardHeader className="flex-row items-start justify-between p-4">
-                    <div>
-                      <CardTitle className="text-lg font-semibold">
-                        {course.title}
-                      </CardTitle>
-                      <CardDescription className="text-xs">
+        {/* Right Column - Courses */}
+        <Box sx={{ flex: '2 1 600px' }}>
+          <Paper
+            elevation={0}
+            className="border-2 border-blue-500"
+            sx={{ p: 3, borderRadius: 4, bgcolor: '#1f2937' }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h5" fontWeight="bold">Enrolled Courses</Typography>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="contained" startIcon={<PlusCircle />}>
+                    Create Course
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="backdrop-blur-3xl sm:max-w-3xl bg-gray-800 text-white border-blue-500">
+                  <DialogHeader>
+                    <DialogTitle>Create a new course for {student.name}</DialogTitle>
+                  </DialogHeader>
+                  <CreateCourseForm
+                    studentId={student._id}
+                    onCourseCreated={() => setIsDialogOpen(false)}
+                  />
+                </DialogContent>
+              </Dialog>
+            </Box>
+            <Divider sx={{ mb: 3 }} />
+            {courses.length > 0 ? (
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+                {courses.map((course) => (
+                  <Paper
+                    key={course._id.toString()}
+                    elevation={0}
+                    sx={{ p: 2.5, borderRadius: 3, bgcolor: '#374151', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                  >
+                    <Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Typography variant="h6" fontWeight="bold">{course.title}</Typography>
+                        <Chip
+                          label={course.noOfClasses > 0 ? "Running" : "Pending"}
+                          size="small"
+                          color={course.noOfClasses > 0 ? 'success' : 'warning'}
+                        />
+                      </Box>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
                         {course.grade} Grade
-                      </CardDescription>
-                    </div>
-                    <Badge
-                      variant={
-                        course.paymentStatus === "completed"
-                          ? "default"
-                          : "destructive"
-                      }
+                      </Typography>
+                      <Divider sx={{ my: 1.5 }} />
+                      <Typography variant="body2">
+                        <span className="font-semibold">Classes Left:</span> {course.noOfClasses}
+                      </Typography>
+                      <Typography variant="body2">
+                        <span className="font-semibold">Price:</span> ₹{course.perClassPrice}/class
+                      </Typography>
+                    </Box>
+                    <Button
+                      component={Link}
+                      href={`/admin/students/${student._id}/${course._id}`}
+                      variant="outlined"
+                      color="secondary"
+                      endIcon={<ArrowRight size={16} />}
+                      sx={{ mt: 2, width: '100%' }}
                     >
-                      {course.paymentStatus}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0 text-sm space-y-1">
-                    <p>Total Classes: {course.noOfClasses}</p>
-                    <p>Price: ${course.perClassPrice}/class</p>
-                  </CardContent>
-                  <CardContent className="p-4 pt-0 mt-auto">
-                    <Link href={`/admin/students/${student._id}/${course._id}`} className="w-full">
-                      <Button variant="outline" className="w-full">View Details</Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              This student is not enrolled in any courses yet.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+                      View Details
+                    </Button>
+                  </Paper>
+                ))}
+              </Box>
+            ) : (
+              <Alert severity="info" sx={{ bgcolor: 'transparent', border: '1px solid', borderColor: 'info.main' }}>
+                This student is not enrolled in any courses yet.
+              </Alert>
+            )}
+          </Paper>
+        </Box>
+      </Box>
+    </Box>
   );
 }

@@ -35,6 +35,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Typography } from "@mui/material"
+import { toast } from "sonner"
 
 export type DemoClassBooking = {
   _id: string
@@ -47,7 +48,7 @@ export type DemoClassBooking = {
   topic: string
   subject: string
   date: string
-  status: "Booked" | "Attended" | "Cancelled"
+  status: "pending" | "confirmed" | "completed" | "cancelled"
 }
 
 export default function DemoClassStudentTable() {
@@ -59,6 +60,29 @@ export default function DemoClassStudentTable() {
   const [rowSelection, setRowSelection] = React.useState({})
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+
+  const handleStatusUpdate = async (id: string, newStatus: DemoClassBooking['status']) => {
+    try {
+      const response = await fetch('/api/demoClass', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to update status.');
+      }
+
+      toast.success(`Status updated to ${newStatus}.`);
+      // Update the local data to reflect the change immediately
+      setData(prevData =>
+        prevData.map(booking => booking._id === id ? { ...booking, status: newStatus } : booking)
+      );
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
 
   const columns: ColumnDef<DemoClassBooking>[] = [
     {
@@ -137,6 +161,14 @@ export default function DemoClassStudentTable() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="backdrop-blur-sm bg-popover/80">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              {booking.status === 'pending' && (
+                <DropdownMenuItem
+                  onClick={() => handleStatusUpdate(booking._id, 'confirmed')}
+                  className="cursor-pointer"
+                >
+                  Confirm Booking
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 onClick={() => booking.studentId?._id && navigator.clipboard.writeText(booking.studentId._id)}
               >

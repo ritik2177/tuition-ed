@@ -258,7 +258,7 @@ export default function CourseDetailPage() {
       <Box mb={3}>
         <Paper
           elevation={0}
-          variant="outlined"
+          className="border-blue-500 border-2"
           sx={{
             p: 2.5,
             borderRadius: 4,
@@ -267,6 +267,7 @@ export default function CourseDetailPage() {
             alignItems: "center",
             justifyContent: "space-between",
             gap: 2,
+            bgcolor: '#1f2937'
           }}
         >
           <Typography variant="h6" fontWeight="medium">
@@ -301,24 +302,21 @@ export default function CourseDetailPage() {
   <Box flex={1}>
     <Paper
       elevation={0}
-      variant="outlined"
+      className="border-blue-500 border-2"
       sx={{
         p: 4,
         borderRadius: 4,
-        borderColor: "divider",
-        bgcolor: "background.paper",
+        bgcolor: '#1f2937',
       }}
     >
       {/* STATUS CHIP */}
       <Chip
-        label={course.paymentStatus?.toUpperCase() || "PENDING"}
+        label={course.noOfClasses > 0 ? "RUNNING" : "PENDING"}
         size="small"
         color={
-          course.paymentStatus === "completed"
+          course.noOfClasses > 0
             ? "success"
-            : course.paymentStatus === "pending"
-            ? "warning"
-            : "default"
+            : "warning"
         }
         sx={{ mb: 2 }}
       />
@@ -424,15 +422,15 @@ export default function CourseDetailPage() {
   >
     <Paper
       elevation={0}
-      variant="outlined"
+      className="border-blue-500 border-2"
       sx={{
         p: 3,
         borderRadius: 4,
-        borderColor: "divider",
         flexGrow: 1,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
+        justifyContent: "space-between", 
+        bgcolor: '#1f2937'
       }}
     >
       {/* SCHEDULE & INSTRUCTOR */}
@@ -556,7 +554,7 @@ export default function CourseDetailPage() {
           {/* Left: Two progress circles */}
           <Paper
             elevation={0}
-            variant="outlined"
+            className="border-blue-500 border-2"
             sx={{
               flex: 1,
               p: 3,
@@ -564,6 +562,7 @@ export default function CourseDetailPage() {
               display: 'flex',
               flexDirection: 'column',
               gap: 2,
+              bgcolor: '#1f2937'
             }}
           >
             <Typography variant="h6" fontWeight="bold">
@@ -637,7 +636,7 @@ export default function CourseDetailPage() {
           {/* Right: Monthly Progress calendar */}
           <Paper
             elevation={0}
-            variant="outlined"
+            className="border-blue-500 border-2"
             sx={{
               flexBasis: { xs: "100%", md: "40%" },
               p: 3,
@@ -646,7 +645,8 @@ export default function CourseDetailPage() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              alignItems: 'center'
+              alignItems: 'center',
+              bgcolor: '#1f2937'
             }}
           >
             <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -674,7 +674,7 @@ export default function CourseDetailPage() {
         <div className="space-y-4">
           {completedClasses.length > 0 ? (
             completedClasses.map((c) => (
-              <Paper key={c._id} variant="outlined" sx={{ p: 2, borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Paper key={c._id} className="border-blue-500 border-2" sx={{ p: 2, borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: '#1f2937' }}>
                 <Typography variant="body1" fontWeight="medium">{c.topic}</Typography>
                 <Box textAlign="right">
                   <Typography variant="body2" color="text.secondary">
@@ -693,7 +693,7 @@ export default function CourseDetailPage() {
 
 
       {/* === ADD CLASSES MODAL === */}
-      <Dialog open={isModalOpen} onClose={handleCloseModal} PaperProps={{ sx: { borderRadius: 4 } }}>
+      <Dialog open={isModalOpen} onClose={handleCloseModal} PaperProps={{ sx: { borderRadius: 4, bgcolor: '#1f2937' } }}>
         <DialogTitle fontWeight="bold">Add More Classes</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 3 }}>

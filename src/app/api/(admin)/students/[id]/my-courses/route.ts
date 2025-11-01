@@ -54,6 +54,7 @@ export async function POST(
       grade,
       noOfClasses,
       perClassPrice,
+      teacherPerClassPrice,
       classTime,
       teacherId,
       classDays,
@@ -61,7 +62,13 @@ export async function POST(
       classroomLink,
     } = body;
 
-    if (!title || !description || !grade || !noOfClasses || !perClassPrice || !teacherId) {
+    if (
+      !title ||
+      !description ||
+      !grade ||
+      noOfClasses === undefined ||
+      !perClassPrice ||
+      !teacherId) {
       return NextResponse.json(
         { message: 'Missing required course fields' },
         { status: 400 }
@@ -85,7 +92,9 @@ export async function POST(
       description,
       grade,
       noOfClasses,
+      noOfclassTeacher: 0, // Explicitly set to 0 on creation
       perClassPrice,
+      teacherPerClassPrice: teacherPerClassPrice || 0,
       classTime,
       classDays,
       joinLink,

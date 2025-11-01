@@ -33,6 +33,7 @@ import {
   ArrowLeft,
   MessageSquare,
 } from "lucide-react";
+import { Video } from "lucide-react";
 
 interface Student {
   _id: string;
@@ -48,6 +49,10 @@ interface CourseDetails {
   grade: string;
   noOfClasses: number;
   studentId: Student;
+  joinLink?: string;
+  noOfclassTeacher?: number;
+  teacherPerClassPrice?: number;
+  classroomLink?: string;
 }
 
 interface CompletedClass {
@@ -175,6 +180,8 @@ export default function CourseDetailsPage() {
   }
 
   const { course, completedClasses } = data;
+  const teacherEarning = (course.noOfclassTeacher || 0) * (course.teacherPerClassPrice || 0);
+
 
   return (
     <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
@@ -224,6 +231,7 @@ export default function CourseDetailsPage() {
           </Button>
         <Button
           variant="contained"
+          title="Add class"
           color="secondary"
           startIcon={<PlusCircle />}
           onClick={() => setIsDialogOpen(true)}
@@ -263,14 +271,39 @@ export default function CourseDetailsPage() {
                   <User size={20} />
                   <Typography>{course.studentId.fullName}</Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Mail size={20} />
-                  <Typography>{course.studentId.email}</Typography>
-                </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Phone size={20} />
-                  <Typography>{course.studentId.mobile || "N/A"}</Typography>
-                </Box>
+                <Button
+                  fullWidth
+                  title="Start class"
+                  variant="contained"
+                  startIcon={<Video />}
+                  {...(course.joinLink && course.noOfClasses > 0
+                    ? {
+                        component: 'a' as const,
+                        href: course.joinLink,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                      }
+                    : {} // No href if no classes left
+                  )}
+                  disabled={!course.joinLink || course.noOfClasses <= 0}
+                  sx={{ justifyContent: 'flex-start', pl: 1.5, gap: 1.5 }}
+                >
+                  Join Class
+                </Button>
+                <Button
+                  component="a"
+                  fullWidth
+                  variant="outlined"
+                  color="secondary"
+                  startIcon={<Mail />}
+                  href={course.noOfClasses > 0 ? course.classroomLink || '#' : undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  disabled={!course.classroomLink || course.noOfClasses <= 0}
+                  sx={{ justifyContent: 'flex-start', pl: 1.5, gap: 1.5 }}
+                >
+                  Visit Classroom
+                </Button>
               </CardContent>
             </Card>
 
@@ -289,6 +322,22 @@ export default function CourseDetailsPage() {
                 <Typography variant="body1" color="text.secondary">
                   Remaining Classes
                 </Typography>
+              </CardContent>
+            </Card>
+
+            <Card variant="outlined" sx={{ borderRadius: 3 }}>
+              <CardHeader title="Payment Status" />
+              <Divider />
+              <CardContent sx={{ textAlign: "center" }}>
+                <Typography
+                  variant="h4"
+                  component="p"
+                  fontWeight={700}
+                  color="secondary"
+                >
+                  ₹{teacherEarning.toFixed(2)}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">Pending Payment</Typography>
               </CardContent>
             </Card>
           </Box>

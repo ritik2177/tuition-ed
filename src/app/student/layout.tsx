@@ -101,11 +101,11 @@ export default function StudentLayout({
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          bgcolor: 'background.paper',
+          bgcolor: '#1e2939', // gray-800
           color: 'text.primary',
           boxShadow: 'none',
           borderBottom: '1px solid',
-          borderColor: 'divider'
+          borderColor: '#3080ff' // blue-500
         }}
       >
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -134,6 +134,8 @@ export default function StudentLayout({
           flexShrink: { sm: 0 },
           '& .MuiDrawer-paper': {
             width: drawerWidth,
+            bgcolor: '#1e2939', // gray-800
+            borderRight: '1px solid #3080ff', // blue-500
             boxSizing: 'border-box',
           },
         }}
@@ -147,7 +149,12 @@ export default function StudentLayout({
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
+              bgcolor: '#1e2939', // gray-800
+              borderRight: '1px solid #3080ff', // blue-500
+            },
           }}
         >
           {drawerContent}
@@ -156,7 +163,12 @@ export default function StudentLayout({
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
+              bgcolor: '#1e2939', // gray-800
+              borderRight: '1px solid #3080ff', // blue-500
+            },
           }}
           open
         >

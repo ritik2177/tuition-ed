@@ -1,19 +1,42 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Hash } from "lucide-react";
-import { Typography, CircularProgress, Alert, Box } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Typography,
+  CircularProgress,
+  Alert,
+  Divider,
+  Avatar,
+  Chip,
+  Button,
+} from "@mui/material";
+import {
+  Mail,
+  Phone,
+  Book,
+  Briefcase,
+  GraduationCap,
+  ArrowRight,
+} from "lucide-react";
+import { ICourse } from "@/models/Course";
+import Link from "next/link";
 
-// Define the Teacher type, matching the data from your API
 export type TeacherFromAPI = {
-  _id: string; // MongoDB's default ID field
-  name: string;
+  _id: string;
+  fullName: string;
   email: string;
-  mobile?: string; // Make optional if it might not exist
+  mobile?: string;
+  qualification?: string;
+  experience?: string;
+  listOfSubjects?: string[];
 };
+
+interface ApiResponse {
+  teacher: TeacherFromAPI;
+  courses: ICourse[];
+}
 
 export default function TeacherDetailPage({
   params,
@@ -22,6 +45,7 @@ export default function TeacherDetailPage({
 }) {
   const { id } = React.use(params); // Unwrap the params Promise
   const [teacher, setTeacher] = useState<TeacherFromAPI | null>(null);
+  const [courses, setCourses] = useState<ICourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,8 +59,9 @@ export default function TeacherDetailPage({
         if (!response.ok) {
           throw new Error("Failed to fetch teacher details");
         }
-        const data = await response.json();
-        setTeacher(data);
+        const data: ApiResponse = await response.json();
+        setTeacher(data.teacher);
+        setCourses(data.courses);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -70,45 +95,111 @@ export default function TeacherDetailPage({
     return <Alert severity="warning">No teacher data found.</Alert>;
   }
 
+  const InfoItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string | null }) => (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
+      <Box sx={{ color: 'text.secondary' }}>{icon}</Box>
+      <Box>
+        <Typography variant="body2" color="text.secondary">{label}</Typography>
+        <Typography variant="body1" fontWeight="medium">{value || 'N/A'}</Typography>
+      </Box>
+    </Box>
+  );
+
   return (
-    <Card className="w-full max-w-2xl mx-auto overflow-hidden shadow-lg">
-      <CardHeader className="bg-muted/30 p-6">
-        <div className="flex items-center gap-6">
-          <Avatar className="h-20 w-20 border-2 border-primary">
-            {/* Using a service to generate avatars from initials */}
-            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${teacher.name}`} alt={teacher.name} />
-            <AvatarFallback className="text-2xl">{teacher.name.charAt(0).toUpperCase()}</AvatarFallback>
-          </Avatar>
-          <div>
-            <CardTitle className="text-3xl font-bold">{teacher.name}</CardTitle>
-            <Typography variant="body2" color="text.secondary" className="flex items-center gap-2 mt-1">
-              <Hash className="h-4 w-4" /> {teacher._id}
-            </Typography>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6 space-y-6">
-        <div className="space-y-1">
-          <h3 className="text-lg font-semibold">Contact Information</h3>
-          <Separator />
-        </div>
-        <div className="grid gap-4 text-sm">
-          <div className="flex items-center gap-4">
-            <Mail className="h-5 w-5 text-muted-foreground" />
-            <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Email</p>
-              <p className="font-medium">{teacher.email}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Phone className="h-5 w-5 text-muted-foreground" />
-            <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Mobile Number</p>
-              <p className="font-medium">{teacher.mobile || 'Not provided'}</p>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
+        {/* Left Column - Teacher Details */}
+        <Box sx={{ flex: '1 1 400px', minWidth: 300 }}>
+          <Paper
+            elevation={0}
+            className="border-2 border-blue-500"
+            sx={{ p: 3, borderRadius: 4, bgcolor: '#1f2937', height: '100%' }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
+              <Avatar
+                src={`https://api.dicebear.com/7.x/initials/svg?seed=${teacher.fullName}`}
+                sx={{ width: 80, height: 80, fontSize: '2.5rem' }}
+              >
+                {teacher.fullName.charAt(0).toUpperCase()}
+              </Avatar>
+              <Box>
+                <Typography variant="h4" fontWeight="bold">{teacher.fullName}</Typography>
+                <Typography variant="body1" color="text.secondary">{teacher.email}</Typography>
+              </Box>
+            </Box>
+            <Divider sx={{ my: 2 }} />
+            <InfoItem icon={<Phone size={20} />} label="Mobile" value={teacher.mobile} />
+            <InfoItem icon={<GraduationCap size={20} />} label="Qualification" value={teacher.qualification} />
+            <InfoItem icon={<Briefcase size={20} />} label="Experience" value={teacher.experience} />
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="body2" color="text.secondary" mb={1}>Subjects</Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {teacher.listOfSubjects && teacher.listOfSubjects.length > 0 ? (
+                teacher.listOfSubjects.map(subject => (
+                  <Chip key={subject} label={subject} variant="outlined" />
+                ))
+              ) : (
+                <Typography variant="body2" color="text.secondary">No subjects listed.</Typography>
+              )}
+            </Box>
+          </Paper>
+        </Box>
+
+        {/* Right Column - Assigned Courses */}
+        <Box sx={{ flex: '2 1 600px' }}>
+          <Paper
+            elevation={0}
+            className="border-2 border-blue-500"
+            sx={{ p: 3, borderRadius: 4, bgcolor: '#1f2937' }}
+          >
+            <Typography variant="h5" fontWeight="bold">Assigned Courses</Typography>
+            <Divider sx={{ my: 2 }} />
+            {courses.length > 0 ? (
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+                {courses.map((course) => (
+                  <Paper
+                    key={course._id.toString()}
+                    elevation={0}
+                    sx={{ p: 2.5, borderRadius: 3, bgcolor: '#374151', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                  >
+                    <Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Typography variant="h6" fontWeight="bold">{course.title}</Typography>
+                        <Chip
+                          label={course.noOfClasses > 0 ? "Running" : "Pending"}
+                          size="small"
+                          color={course.noOfClasses > 0 ? 'success' : 'warning'}
+                        />
+                      </Box>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Student: {(course.studentId as any)?.fullName || 'N/A'}
+                      </Typography>
+                      <Divider sx={{ my: 1.5 }} />
+                      <Typography variant="body2">
+                        <span className="font-semibold">Classes Left:</span> {course.noOfClasses}
+                      </Typography>
+                    </Box>
+                    <Button
+                      component={Link}
+                      href={`/admin/teachers/${id}/${course._id.toString()}`}
+                      variant="outlined"
+                      color="secondary"
+                      endIcon={<ArrowRight size={16} />}
+                      sx={{ mt: 2, width: '100%' }}
+                    >
+                      View Details
+                    </Button>
+                  </Paper>
+                ))}
+              </Box>
+            ) : (
+              <Alert severity="info" sx={{ bgcolor: 'transparent', border: '1px solid', borderColor: 'info.main' }}>
+                This teacher has not been assigned to any courses yet.
+              </Alert>
+            )}
+          </Paper>
+        </Box>
+      </Box>
+    </Box>
   );
 }

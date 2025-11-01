@@ -33,8 +33,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Typography } from "@mui/material"
+} from "@/components/ui/table"
+import { Paper, Typography } from "@mui/material"
 
 export type CourseData = {
   id: string
@@ -134,9 +134,6 @@ export default function StudentDataTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="backdrop-blur-sm bg-popover/80">
-              <DropdownMenuLabel
-                className="cursor-pointer hover:text-purple-400"
-              >Actions</DropdownMenuLabel>
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(course.id)}
                 className="cursor-pointer data-[highlighted]:bg-transparent data-[highlighted]:text-purple-400"
@@ -202,8 +199,12 @@ export default function StudentDataTable() {
   })
 
   return (
-    <div className="w-full">
-      <Typography variant="h4" gutterBottom>My Courses</Typography>
+    <Paper
+      elevation={0}
+      className="border-2 border-blue-500"
+      sx={{ p: { xs: 2, md: 4 }, borderRadius: 4, bgcolor: '#1f2937' }}
+    >
+      <Typography variant="h4" gutterBottom fontWeight="bold">My Students & Courses</Typography>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter by student name..."
@@ -211,10 +212,10 @@ export default function StudentDataTable() {
           onChange={(event) =>
             table.getColumn("studentName")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm bg-gray-700 text-white border-gray-600 placeholder:text-gray-400"
         />
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border border-gray-700">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -298,6 +299,6 @@ export default function StudentDataTable() {
           </Button>
         </div>
       </div>
-    </div>
+    </Paper>
   )
 }

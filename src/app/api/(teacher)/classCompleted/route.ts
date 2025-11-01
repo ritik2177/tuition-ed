@@ -44,6 +44,9 @@ export async function POST(request: NextRequest) {
       // Decrement the number of classes
       course.noOfClasses -= 1;
 
+      // Increment the number of classes taught by the teacher
+      course.noOfclassTeacher = (course.noOfclassTeacher || 0) + 1;
+
       // Create the new completed class record
       newCompletedClass = new CompletedClass({
         courseId: course._id,

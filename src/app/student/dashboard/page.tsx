@@ -78,7 +78,7 @@ export default function StudentDashboardPage() {
           <p className="text-muted-foreground">Here's a summary of your activities.</p>
         </div>
         <Link href="/get-a-free-tail">
-          <Button>
+          <Button className="bg-[#0EA5E9] hover:bg-[#0284c7]">
             <PlusCircle className="mr-2 h-4 w-4" />
             Book a New Demo
           </Button>
@@ -86,8 +86,7 @@ export default function StudentDashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:border-primary/50 transition-colors">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">        <Card className="bg-gray-800 border-blue-500 border-2 hover:border-blue-400 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
@@ -96,7 +95,7 @@ export default function StudentDashboardPage() {
             <div className="text-2xl font-bold">{assignedCourses.length}</div>
           </CardContent>
         </Card>
-        <Card className="hover:border-primary/50 transition-colors">
+        <Card className="bg-gray-800 border-blue-500 border-2 hover:border-blue-400 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Demos Booked</CardTitle>
             <BookCheck className="h-4 w-4 text-muted-foreground" />
@@ -105,7 +104,7 @@ export default function StudentDashboardPage() {
             <div className="text-2xl font-bold">{demoClasses.length}</div>
           </CardContent>
         </Card>
-        <Card className="hover:border-primary/50 transition-colors">
+        <Card className="bg-gray-800 border-blue-500 border-2 hover:border-blue-400 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Confirmed Demos</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -114,7 +113,7 @@ export default function StudentDashboardPage() {
             <div className="text-2xl font-bold">{demoClasses.filter(d => d.status === 'confirmed').length}</div>
           </CardContent>
         </Card>
-        <Card className="hover:border-primary/50 transition-colors">
+        <Card className="bg-gray-800 border-blue-500 border-2 hover:border-blue-400 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Demos</CardTitle>
             <Hourglass className="h-4 w-4 text-muted-foreground" />
@@ -126,11 +125,11 @@ export default function StudentDashboardPage() {
       </div>
 
       {/* Assigned Courses Section */}
-      <Card>
+      <Card className="border-blue-500 border-2">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>My Courses</CardTitle>
           <Link href="/student/courses">
-            <Button variant="outline" size="sm">View All Courses</Button>
+            <Button className='border-blue-500 border-2 bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground' size="sm">View All Courses</Button>
           </Link>
         </CardHeader>
         <CardContent>
@@ -141,7 +140,7 @@ export default function StudentDashboardPage() {
           ) : assignedCourses.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {assignedCourses.slice(0, 3).map((course) => (
-                <Card key={course._id} className="flex flex-col bg-card hover:bg-muted/40 transition-colors group">
+                <Card key={course._id} className="flex flex-col group bg-gray-800 border-blue-500 border-2">
                   <CardHeader className="pb-4">
                     <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">{course.title}</CardTitle>
                     <p className="text-sm text-muted-foreground pt-1">
@@ -160,7 +159,7 @@ export default function StudentDashboardPage() {
                   </CardContent>
                   <div className="p-6 pt-4 mt-auto flex flex-col sm:flex-row gap-2">
                     <Link href={`/student/courses/${course._id}`} className="w-full">
-                      <Button className="w-full" variant="outline">
+                      <Button className="w-full bg-[#0EA5E9] hover:bg-[#0284c7]">
                         View Dashboard
                       </Button>
                     </Link>
@@ -180,7 +179,7 @@ export default function StudentDashboardPage() {
       </Card>
       
       {/* Demo Classes Section */}
-      <Card>
+      <Card className=" border-blue-500 border-2">
         <CardHeader>
           <CardTitle>My Demo Classes</CardTitle>
         </CardHeader>
@@ -192,7 +191,7 @@ export default function StudentDashboardPage() {
           ) : demoClasses.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {demoClasses.map((demo) => (
-                <Card key={demo._id} className="flex flex-col bg-gray-50/50 hover:shadow-md transition-shadow">
+                <Card key={demo._id} className="flex flex-col bg-gray-800 border-blue-500 border-2">
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">{demo.subject}</CardTitle>

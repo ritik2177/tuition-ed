@@ -1,44 +1,38 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
-import Course from '@/models/Course';
-import mongoose from 'mongoose';
+import DemoClass, { IDemoClass } from '@/models/DemoClass';
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
-  const { id: studentId } = await context.params; // await params
-  const session = await getServerSession(authOptions);
-
-  //  Fix this condition: previous one always returned Unauthorized
-  if (!session || session.user.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(studentId)) {
-    return NextResponse.json({ message: 'Invalid student ID' }, { status: 400 });
-  }
+  const { id } = await context.params; // ✅ Await here
 
   try {
     await dbConnect();
 
-    const student = await User.findById(studentId)
-      .lean();
-
+    const student = await User.findById(id).select('-otp -otpExpires -password').lean();
     if (!student) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return new NextResponse('Student not found', { status: 404 });
     }
 
-    const responseData = {
-      _id: student._id,
+    const demoClass = await DemoClass.findOne({ studentId: id })
+      .sort({ createdAt: -1 })
+      .lean() as IDemoClass | null;
+
+    const studentDetails = {
+      _id: student._id.toString(),
       name: student.fullName,
       email: student.email,
-      mobile: student.mobile,
+      mobile: student.mobile || 'N/A',
+      dateOfBirth: student.dateOfBirth || null,
+      address: student.address || { street: '', city: '', state: '', country: '' },
+      grade: demoClass?.grade || 'N/A',
+      fatherName: demoClass?.fatherName || 'N/A',
+      country: demoClass?.country || student.address?.country || 'N/A',
     };
 
-    return NextResponse.json(responseData, { status: 200 });
+    return NextResponse.json(studentDetails);
   } catch (error) {
-    console.error('Failed to fetch student details:', error);
-    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+    console.error('[GET_STUDENT_DETAILS]', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

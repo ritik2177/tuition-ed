@@ -10,6 +10,7 @@ export interface IUser extends Document {
     street: string;
     city: string;
     state: string;
+    country?: string;
   };
   otp?: string;
   otpExpires?: Date;
@@ -18,6 +19,11 @@ export interface IUser extends Document {
   provider: 'google' | 'credentials';
   isAcceptingMessages?: boolean;
   messages?: [string];
+  qualification?: string;
+  experience?: string;
+  listOfSubjects?: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const UserSchema: Schema<IUser> = new Schema({
@@ -29,7 +35,11 @@ const UserSchema: Schema<IUser> = new Schema({
     street: String,
     city: String,
     state: String,
+    country: String,
   },
+  qualification: { type: String },
+  experience: { type: String },
+  listOfSubjects: { type: [String] },
   role: {
     type: String,
     enum: ['student', 'teacher', 'admin'],

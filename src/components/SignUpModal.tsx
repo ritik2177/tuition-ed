@@ -8,8 +8,9 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import { X } from 'lucide-react';
+import { UserPlus, X } from 'lucide-react';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Stack } from '@mui/material';
 
 interface SignUpModalProps {
     open: boolean;
@@ -118,25 +119,27 @@ const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
         >
             <Box sx={style}>
                 {/* Left Side */}
-                <Box sx={{ width: { xs: '100%', md: 300 }, p: 4, bgcolor: '#fff', color: '#000', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-                    <Typography variant="h4" component="h2" sx={{ fontWeight: 'bold' }}>
-                        Tuition-ed
+                <Box sx={{ width: { xs: '100%', md: 300 }, p: 4, bgcolor: 'primary.main', color: 'primary.contrastText', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+                    <UserPlus size={64} />
+                    <Typography variant="h5" component="h2" sx={{ mt: 2, fontWeight: 'bold' }}>
+                        Create Your Account
                     </Typography>
-                    <Typography variant="h5" sx={{ mt: 2 }}>
-                        Sign Up
+                    <Typography variant="body2" sx={{ mt: 1, opacity: 0.8 }}>
+                        Start your learning journey with us.
                     </Typography>
                 </Box>
 
                 {/* Right Side */}
-                <Box sx={{ p: 4, position: 'relative', width: { xs: '100%', md: 400 }, bgcolor: '#000', color: '#fff' }}>
-                    <IconButton onClick={handleClose} sx={{ position: 'absolute', top: 8, right: 8 }}>
+                <Box sx={{ p: 4, position: 'relative', width: { xs: '100%', md: 450 }, bgcolor: '#1f2937', color: '#fff' }}>
+                    <IconButton onClick={handleClose} sx={{ position: 'absolute', top: 8, right: 8, color: 'grey.500' }}>
                         <X />
                     </IconButton>
                     {step === 'details' && (
-                        <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 4 }}>
-                            <Typography variant="h6" component="h3">Enter Your Details</Typography> {error && <Typography color="error" variant="body2">{error}</Typography>}
-                            <TextField label="Full Name" variant="outlined" fullWidth value={fullName} onChange={(e) => setFullName(e.target.value)} sx={textFieldStyles} />
-                            <TextField label="Email ID" variant="outlined" fullWidth type="email" value={email} onChange={(e) => setEmail(e.target.value)} sx={textFieldStyles} />
+                        <Stack component="form" spacing={2.5} sx={{ mt: 4 }}>
+                            <Typography variant="h6" component="h3">Enter Your Details</Typography>
+                            {error && <Typography color="error" variant="body2">{error}</Typography>}
+                            <TextField label="Full Name" variant="outlined" fullWidth required value={fullName} onChange={(e) => setFullName(e.target.value)} sx={textFieldStyles} />
+                            <TextField label="Email ID" variant="outlined" fullWidth required type="email" value={email} onChange={(e) => setEmail(e.target.value)} sx={textFieldStyles} />
                             <TextField label="Mobile Number" variant="outlined" fullWidth type="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} sx={textFieldStyles} />
                             <Button
                                 variant="contained"
@@ -144,14 +147,14 @@ const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
                                 disabled={loading}
                                 sx={{
                                     mt: 2,
-                                    bgcolor: '#fff',
-                                    color: '#000',
-                                    '&:hover': { bgcolor: '#eee' }
+                                    bgcolor: 'primary.main',
+                                    color: 'primary.contrastText',
+                                    '&:hover': { bgcolor: 'primary.dark' }
                                 }}
                             >
-                                {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify and Process'}
+                                {loading ? <CircularProgress size={24} color="inherit" /> : 'Get OTP'}
                             </Button>
-                        </Box>
+                        </Stack>
                     )}
 
                     {step === 'otp' && (
@@ -174,9 +177,9 @@ const SignUpModal = ({ open, onClose }: SignUpModalProps) => {
                                 disabled={loading}
                                 sx={{
                                     mt: 2,
-                                    bgcolor: '#fff',
-                                    color: '#000',
-                                    '&:hover': { bgcolor: '#eee' }
+                                    bgcolor: 'primary.main',
+                                    color: 'primary.contrastText',
+                                    '&:hover': { bgcolor: 'primary.dark' }
                                 }}
                             >
                                 {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}

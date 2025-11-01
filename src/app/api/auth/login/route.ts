@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
     // Generate OTP and expiry time
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    console.log(otp)
 
     user.otp = otp;
     user.otpExpires = otpExpires;

@@ -103,59 +103,48 @@ export async function PUT(
       joinLink,
       classroomLink,
       teacherId,
+      teacherPerClassPrice,
+      noOfclassTeacher,
       paymentStatus,
     } = body;
 
-    // 3. Basic validation for required fields
-    if (
-      !title ||
-      !description ||
-      !grade ||
-      noOfClasses === undefined ||
-      perClassPrice === undefined ||
-      !teacherId
-    ) {
-      return NextResponse.json(
-        { success: false, message: "Missing required fields" },
-        { status: 400 }
-      );
+    const updateData: Record<string, any> = {};
+
+    // Dynamically build the update object only with fields that are present
+    if (title) updateData.title = title;
+    if (description) updateData.description = description;
+    if (grade) updateData.grade = grade;
+    if (classTime) updateData.classTime = classTime;
+    if (classDays) updateData.classDays = classDays;
+    if (noOfClasses !== undefined) updateData.noOfClasses = noOfClasses;
+    if (perClassPrice !== undefined) updateData.perClassPrice = perClassPrice;
+    if (joinLink) updateData.joinLink = joinLink;
+    if (classroomLink) updateData.classroomLink = classroomLink;
+    if (teacherPerClassPrice !== undefined) updateData.teacherPerClassPrice = teacherPerClassPrice;
+    if (noOfclassTeacher !== undefined) updateData.noOfclassTeacher = noOfclassTeacher;
+    if (paymentStatus) updateData.paymentStatus = paymentStatus;
+
+    // If no fields to update are provided, return an error
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ success: false, message: "No fields to update provided." }, { status: 400 });
     }
 
     // 4. Validate teacherId
-    if (!mongoose.Types.ObjectId.isValid(teacherId)) {
-      return NextResponse.json(
-        { success: false, message: "Invalid Teacher ID provided" },
-        { status: 400 }
-      );
-    }
-
-    const teacher = await User.findById(teacherId);
-    if (!teacher || teacher.role !== "teacher") {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Assigned teacher not found or is not a teacher",
-        },
-        { status: 400 }
-      );
+    if (teacherId) {
+      if (!mongoose.Types.ObjectId.isValid(teacherId)) {
+        return NextResponse.json({ success: false, message: "Invalid Teacher ID provided" }, { status: 400 });
+      }
+      const teacher = await User.findById(teacherId);
+      if (!teacher || teacher.role !== "teacher") {
+        return NextResponse.json({ success: false, message: "Assigned teacher not found or is not a teacher" }, { status: 400 });
+      }
+      updateData.teacherId = new mongoose.Types.ObjectId(teacherId);
     }
 
     // 5. Update the course
     const updatedCourse = await Course.findByIdAndUpdate(
       courseId,
-      {
-        title,
-        description,
-        grade,
-        classTime,
-        classDays,
-        noOfClasses,
-        perClassPrice,
-        joinLink,
-        classroomLink,
-        teacherId: new mongoose.Types.ObjectId(teacherId),
-        paymentStatus,
-      },
+      { $set: updateData },
       { new: true, runValidators: true }
     )
       .populate({

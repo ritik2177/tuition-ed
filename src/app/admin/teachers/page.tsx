@@ -122,7 +122,7 @@ export default function TeacherDataTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="backdrop-blur-sm bg-popover/80">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-red-500">Delete</DropdownMenuLabel>
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(teacher.id)}
                 className="cursor-pointer data-[highlighted]:bg-transparent data-[highlighted]:text-purple-400"
@@ -135,12 +135,6 @@ export default function TeacherDataTable() {
                 className="cursor-pointer data-[highlighted]:bg-transparent data-[highlighted]:text-purple-400"
               >
                 View teacher details
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push(`/admin/teachers/${teacher.id}/edit`)}
-                className="cursor-pointer data-[highlighted]:bg-transparent data-[highlighted]:text-purple-400"
-              >
-                Edit teacher
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

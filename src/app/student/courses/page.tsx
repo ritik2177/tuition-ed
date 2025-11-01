@@ -72,7 +72,7 @@ export default function MyCoursesPage() {
                 <Link
                   key={course._id}
                   href={`/student/courses/${course._id}`}
-                  className="w-full bg-card rounded-2xl shadow-lg hover:shadow-primary/20 hover:shadow-2xl transition-all duration-300 border border-border flex flex-col md:flex-row overflow-hidden"
+                  className="w-full rounded-2xl shadow-lg hover:shadow-primary/20 hover:shadow-2xl duration-300 flex flex-col md:flex-row overflow-hidden bg-gray-800 border-blue-500 border-2"
                 >
                   <div className="flex flex-col justify-between p-8 flex-1">
                     <div>
@@ -82,12 +82,12 @@ export default function MyCoursesPage() {
                         </h2>
                         <span
                           className={`px-4 py-1 text-sm font-medium rounded-full ${
-                            course.paymentStatus === "completed"
+                            course.noOfClasses > 0
                               ? "bg-green-600/20 text-green-400"
-                              : "bg-red-600/20 text-red-400"
+                              : "bg-yellow-600/20 text-yellow-400"
                           }`}
                         >
-                          {course.paymentStatus || "pending"}
+                          {course.noOfClasses > 0 ? "Running" : "Pending"}
                         </span>
                       </div>
 
@@ -136,24 +136,24 @@ export default function MyCoursesPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="w-4/12 bg-white rounded-2xl p-8 shadow-lg self-start sticky top-24 min-h-screen">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">Your Progress</h3>
-          <div className="bg-indigo-50 p-6 rounded-xl mb-6 text-center">
+        <div className="w-4/12 bg-gray-800 rounded-2xl p-8 shadow-lg self-start sticky top-24 min-h-screen border-blue-500 border-2">
+          <h3 className="text-2xl font-bold text-white mb-6">Your Progress</h3>
+          <div className="bg-gray-900 p-6 rounded-xl mb-6 text-center">
             <img
               src="/courses.jpg"
               alt="Student Illustration"
               className="w-32 mx-auto mb-4"
             />
-            <h4 className="font-semibold text-xl text-indigo-800">Keep up the great work!</h4>
-            <p className="text-sm text-indigo-600 mt-1">Here's a summary of your learning journey.</p>
+            <h4 className="font-semibold text-xl text-blue-400">Keep up the great work!</h4>
+            <p className="text-sm text-blue-300 mt-1">Here's a summary of your learning journey.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-gray-100 p-4 rounded-lg text-center">
+            <div className="bg-gray-900 p-4 rounded-lg text-center">
               <p className="text-3xl font-bold text-indigo-600">{courses.length}</p>
               <p className="text-sm text-gray-600 mt-1">Total Courses</p>
             </div>
-            <div className="bg-gray-100 p-4 rounded-lg text-center">
+            <div className="bg-gray-900 p-4 rounded-lg text-center">
               <p className="text-3xl font-bold text-green-600">
                 {courses.filter(c => c.paymentStatus === 'completed').length}
               </p>
@@ -164,7 +164,7 @@ export default function MyCoursesPage() {
           <div>
             <a
               href="/get-a-free-tail"
-              className="block w-full text-center py-3 rounded-lg font-semibold transition-all duration-300 bg-purple-600 text-white hover:bg-purple-700"
+              className="block w-full text-center py-3 rounded-lg font-semibold transition-all duration-300 bg-[#0EA5E9] hover:bg-[#0284c7] text-white border-white border-2"
             >
               Book a Free Demo
             </a>

@@ -10,6 +10,8 @@ export interface ICourse extends Document {
   classDays:  string[];
   noOfClasses: number;
   perClassPrice: number;
+  noOfclassTeacher?: number;
+  teacherPerClassPrice?: number;
   joinLink: string;
   classroomLink?: string;
   teacherId: Types.ObjectId;
@@ -24,8 +26,10 @@ const CourseSchema: Schema = new Schema({
   grade: { type: String, required: true },
   classTime: { type: String },
   classDays: { type: [String] },
-  noOfClasses: { type: Number, required: true },
+  noOfClasses: { type: Number, default: 0},
+  noOfclassTeacher: { type: Number, default: 0 },
   perClassPrice: { type: Number, required: true },
+  teacherPerClassPrice: { type: Number, default: 0 },
   joinLink: { type: String },
   classroomLink: { type: String },
   studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },

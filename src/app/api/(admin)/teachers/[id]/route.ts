@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
+import Course from '@/models/Course';
 
 export async function GET(
   request: Request,
@@ -11,24 +12,30 @@ export async function GET(
   try {
     await dbConnect();
 
-    // Use .lean() for better performance as it returns a plain JavaScript object
-    const teacher = await User.findOne({ _id: id, role: "teacher" }).lean();
-
-    if (!teacher) {
-      return NextResponse.json({ error: 'Teacher not found' }, { status: 404 });
+    // Fetch teacher details
+    const teacher = await User.findById(id).select('-otp -otpExpires -password').lean();
+    if (!teacher || teacher.role !== 'teacher') {
+      return new NextResponse('Teacher not found', { status: 404 });
     }
 
-    // Map the database field (e.g., 'username') to the 'name' field expected by the frontend.
-    // If your user model uses a different field for the name, like 'fullName', change 'teacher.username' accordingly.
-    const teacherData = {
-      ...teacher,
-      name: teacher.fullName || 'N/A', // Fallback to 'username' if 'name' is missing, then 'N/A'
-      id: teacher._id.toString(), // Ensure the ID is a string
+    // Fetch courses assigned to this teacher
+    const courses = await Course.find({ teacherId: id })
+      .populate({
+        path: 'studentId',
+        model: User,
+        select: 'fullName',
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const responseData = {
+      teacher,
+      courses,
     };
 
-    return NextResponse.json(teacherData);
+    return NextResponse.json(responseData);
   } catch (error) {
-    console.error('Failed to fetch teacher:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('[GET_TEACHER_DETAILS]', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

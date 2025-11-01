@@ -101,7 +101,7 @@ const CourseMessageModal: React.FC<Props> = ({ courseId, open, onClose }) => {
 
   return (
     <Modal open={open} onClose={onClose}>
-      <Box sx={modalStyle}>
+      <Box sx={modalStyle} className="border-2 border-blue-500">
         <Typography variant="h6" component="h2" mb={2}>
           Course Messages
         </Typography>
@@ -122,8 +122,8 @@ const CourseMessageModal: React.FC<Props> = ({ courseId, open, onClose }) => {
                         elevation={1}
                         sx={{
                           p: 1.5,
-                          bgcolor: isSender ? 'primary.main' : 'grey.200',
-                          color: isSender ? 'primary.contrastText' : 'common.black',
+                          bgcolor: isSender ? 'primary.main' : '#374151', // gray-700 for receiver
+                          color: isSender ? 'primary.contrastText' : 'white',
                           borderRadius: isSender ? '20px 20px 5px 20px' : '20px 20px 20px 5px',
                         }}
                       >
@@ -156,6 +156,18 @@ const CourseMessageModal: React.FC<Props> = ({ courseId, open, onClose }) => {
             placeholder="Type your message..."
             variant="outlined"
             disabled={isSending}
+            sx={{
+              '& .MuiInputBase-root': {
+                backgroundColor: '#374151', // gray-700
+                color: 'white',
+                '& fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.23)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'white',
+                },
+              },
+            }}
           />
           <IconButton type="submit" color="primary" disabled={!newMessage.trim() || isSending}>
             {isSending ? <CircularProgress size={24} /> : <SendIcon />}
@@ -172,7 +184,7 @@ const modalStyle = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: { xs: '95%', sm: 600 },
-  bgcolor: "background.paper",
+  bgcolor: "#1f2937", // bg-gray-800
   borderRadius: 2,
   boxShadow: 24,
   p: 3,

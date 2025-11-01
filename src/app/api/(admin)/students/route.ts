@@ -1,25 +1,53 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
+import DemoClass from '@/models/DemoClass';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await dbConnect();
 
-    // Fetch all documents from the User collection where the role is 'student'
-    const studentsFromDb = await User.find({ role: 'student' }).select('id fullName email mobile');
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
 
-    // Map the data to match the frontend's expected 'Student' type
-    const students = studentsFromDb.map(student => ({
-      id: student.id,
-      name: student.fullName,
-      email: student.email,
-      mobile: student.mobile || 'N/A', // Provide a fallback for optional fields
-    }));
+    if (status === 'confirmed') {
+      // Find all demo classes with status 'confirmed'
+      const confirmedDemos = await DemoClass.find({ status: 'confirmed' }).select('studentId').lean();
+      
+      // Extract unique student IDs
+      const studentIds = [...new Set(confirmedDemos.map(demo => demo.studentId.toString()))];
 
-    return NextResponse.json(students, {
-      headers: { 'Cache-Control': 'no-store' }, // Ensure fresh data on every request
-    });
+      // Fetch only the users who are in the confirmed list
+      const students = await User.find({
+        _id: { $in: studentIds },
+        role: 'student'
+      }).select('fullName email mobile').lean();
+
+      const formattedStudents = students.map(student => ({
+        id: student._id.toString(),
+        name: student.fullName,
+        email: student.email,
+        mobile: student.mobile || 'N/A',
+      }));
+
+      return NextResponse.json(formattedStudents);
+
+    } else {
+      // Default behavior: fetch all students if no specific status is requested
+      const studentsFromDb = await User.find({ role: 'student' }).select('id fullName email mobile');
+
+      const students = studentsFromDb.map(student => ({
+        id: student.id,
+        name: student.fullName,
+        email: student.email,
+        mobile: student.mobile || 'N/A',
+      }));
+
+      return NextResponse.json(students, {
+        headers: { 'Cache-Control': 'no-store' },
+      });
+    }
+
   } catch (error) {
     console.error('[GET_STUDENTS_MONGO]', error);
     return new NextResponse('Internal Server Error', { status: 500 });

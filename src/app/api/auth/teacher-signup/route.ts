@@ -1,12 +1,19 @@
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import { sendOtpEmail } from "@/lib/sendOtp";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await dbConnect();
-    const { fullName, email, mobile } = await request.json();
+    const {
+      fullName,
+      email,
+      mobile,
+      qualification,
+      experience,
+      listOfSubjects,
+    } = await request.json();
 
     if (!fullName || !email) {
       return NextResponse.json({ message: "Full name and email are required" }, { status: 400 });
@@ -18,11 +25,23 @@ export async function POST(request: Request) {
     let user = await User.findOne({ email });
 
     if (!user) {
-      user = new User({ fullName, email, mobile, isVerified: false, role: 'teacher' });
+      user = new User({
+        fullName,
+        email,
+        mobile,
+        qualification,
+        experience,
+        listOfSubjects,
+        isVerified: false,
+        role: "teacher",
+      });
     } else {
       // If user exists, ensure their role is updated to teacher
-      user.role = 'teacher';
+      user.role = "teacher";
       user.fullName = fullName; // Also update their name
+      user.qualification = qualification;
+      user.experience = experience;
+      user.listOfSubjects = listOfSubjects;
     }
     user.otp = otp;
     user.otpExpires = otpExpires;

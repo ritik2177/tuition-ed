@@ -25,6 +25,8 @@ interface CourseFormValues {
   classDays: string[];
   noOfClasses: number;
   perClassPrice: number;
+  noOfclassTeacher?: number;
+  teacherPerClassPrice?: number;
   joinLink?: string;
   classroomLink?: string;
 }
@@ -48,6 +50,8 @@ export default function CreateCourseForm({ studentId, onCourseCreated }: CreateC
       classDays: [],
       noOfClasses: 8,
       perClassPrice: 500,
+      noOfclassTeacher: 0,
+      teacherPerClassPrice: 0,
       joinLink: '',
       classroomLink: '',
     },
@@ -153,14 +157,17 @@ export default function CreateCourseForm({ studentId, onCourseCreated }: CreateC
           </FormItem>
         </div>
 
-        {/* Number of Classes */}
-        <div key="noOfClasses" className="md:col-span-2">
-          <FormField control={form.control} name="noOfClasses" render={({ field }) => (<FormItem><FormLabel>Number of Classes</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>)} />
-        </div>
-
-        {/* Price per Class */}
-        <div key="perClassPrice" className="md:col-span-2">
-          <FormField control={form.control} name="perClassPrice" render={({ field }) => (<FormItem><FormLabel>Price per Class</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>)} />
+        {/* Number of Classes, Prices */}
+        <div className="md:col-span-4 grid md:grid-cols-3 gap-x-6 gap-y-4">
+          <div key="noOfClasses">
+            <FormField control={form.control} name="noOfClasses" render={({ field }) => (<FormItem><FormLabel>Number of Classes</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>)} />
+          </div>
+          <div key="perClassPrice">
+            <FormField control={form.control} name="perClassPrice" render={({ field }) => (<FormItem><FormLabel>Price per Class</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>)} />
+          </div>
+          <div key="teacherPerClassPrice">
+            <FormField control={form.control} name="teacherPerClassPrice" render={({ field }) => (<FormItem><FormLabel>Teacher's Price/Class</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>)} />
+          </div>
         </div>
 
         {/* Join & Classroom Links */}
