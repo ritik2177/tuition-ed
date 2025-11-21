@@ -14,7 +14,7 @@ import {
   Autocomplete,
   Chip,
 } from '@mui/material';
-import { Edit, Save, X } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProfileData {
@@ -33,12 +33,11 @@ interface ProfileData {
 }
 
 const TeacherProfilePage = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [initialProfile, setInitialProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -63,10 +62,10 @@ const TeacherProfilePage = () => {
       }
     };
 
-    if (session) {
+    if (status === 'authenticated') {
       fetchProfile();
     }
-  }, [session]);
+  }, [session, status]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -101,7 +100,6 @@ const TeacherProfilePage = () => {
       }
 
       toast.success('Profile updated successfully!');
-      setIsEditing(false);
       setInitialProfile(profile);
     } catch (err: any) {
       setError(err.message);
@@ -111,12 +109,7 @@ const TeacherProfilePage = () => {
     }
   };
 
-  const handleCancel = () => {
-    setProfile(initialProfile);
-    setIsEditing(false);
-  };
-
-  if (loading) {
+  if (loading || status === 'loading') {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
         <CircularProgress />
@@ -140,8 +133,8 @@ const TeacherProfilePage = () => {
         value={value || ''}
         onChange={handleInputChange}
         fullWidth
-        variant="outlined"
-        disabled={!isEditing || !editable}
+        variant="filled"
+        disabled={!editable}
         type={type}
         InputLabelProps={{ shrink: true }}
         sx={{
@@ -161,20 +154,9 @@ const TeacherProfilePage = () => {
         <Typography variant="h4" fontWeight="bold">
           My Profile
         </Typography>
-        {!isEditing ? (
-          <Button variant="contained" startIcon={<Edit />} onClick={() => setIsEditing(true)}>
-            Edit Profile
-          </Button>
-        ) : (
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button variant="outlined" color="secondary" startIcon={<X />} onClick={handleCancel} disabled={isSaving}>
-              Cancel
-            </Button>
-            <Button variant="contained" startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <Save />} onClick={handleSave} disabled={isSaving}>
-              Save Changes
-            </Button>
-          </Box>
-        )}
+        <Button variant="contained" startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <Save />} onClick={handleSave} disabled={isSaving}>
+          Save Changes
+        </Button>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -198,7 +180,6 @@ const TeacherProfilePage = () => {
             freeSolo
             options={[]}
             value={profile.listOfSubjects}
-            disabled={!isEditing}
             onChange={(event, newValue) => {
               if (profile) setProfile({ ...profile, listOfSubjects: newValue });
             }}
@@ -208,7 +189,7 @@ const TeacherProfilePage = () => {
               ))
             }
             renderInput={(params) => (
-              <TextField {...params} variant="outlined" label="Subjects You Teach" placeholder="Type a subject and press Enter" />
+              <TextField {...params} variant="filled" label="Subjects You Teach" placeholder="Type a subject and press Enter" />
             )}
           />
         </Box>

@@ -5,6 +5,8 @@ export interface ICourseMessage extends Document {
   courseId: mongoose.Types.ObjectId;
   senderId: mongoose.Types.ObjectId;
   message: string;
+  attachmentUrl?: string;
+  attachmentType?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,8 +25,13 @@ const CourseMessageSchema: Schema<ICourseMessage> = new Schema(
     },
     message: {
       type: String,
-      required: true,
       trim: true,
+    },
+    attachmentUrl: {
+      type: String,
+    },
+    attachmentType: {
+      type: String,
     },
   },
   { timestamps: true }

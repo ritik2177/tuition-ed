@@ -1,19 +1,24 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { useUI } from "@/provider/UIProvider";
+import { useSession, signIn } from "next-auth/react";
 
-const steps = ["Academic Details", "Schedule Demo"];
+const steps = ["Your Details", "Academic Details", "Schedule Demo"];
 
 export default function FreeTrialPage() {
-  const { data: session, status } = useSession();
-  const { openModal } = useUI();
+  const { data: session, status, update: updateSession } = useSession();
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  const isUserAuthenticated = status === "authenticated" && session?.user?.role === 'student';
+
+  useEffect(() => { if (isUserAuthenticated) { setActiveStep(1); } }, [isUserAuthenticated]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -29,6 +34,56 @@ export default function FreeTrialPage() {
       }));
     }
   }, [session]);
+
+  const handleSendOtp = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const apiEndpoint = session ? "/api/auth/login" : "/api/auth/signup";
+      const payload = session 
+        ? { email: formData.email } 
+        : { fullName: formData.fullName, email: formData.email, mobile: formData.mobile };
+
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to send OTP.");
+      setOtpSent(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setIsVerifying(true);
+    setError("");
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: formData.email,
+        otp: formData.otp,
+        role: 'student'
+      });
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+
+      if (result?.ok) {
+        await updateSession(); // Refresh session data
+        handleNext();
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   const handleNext = () => {
     setError("");
@@ -67,6 +122,57 @@ export default function FreeTrialPage() {
       case 0:
         return (
           <div className="flex flex-col gap-4 mt-4">
+            {!session && (
+              <>
+                <input
+                  name="fullName"
+                  type="text"
+                  placeholder="Full Name"
+                  required
+                  value={formData.fullName || ""}
+                  onChange={handleChange}
+                  className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  disabled={otpSent}
+                />
+                <input
+                  name="mobile"
+                  type="tel"
+                  placeholder="Mobile Number"
+                  required
+                  value={formData.mobile || ""}
+                  onChange={handleChange}
+                  className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  disabled={otpSent}
+                />
+              </>
+            )}
+            <input
+              name="email"
+              type="email"
+              placeholder="Email Address"
+              required
+              value={formData.email || ""}
+              onChange={handleChange}
+              className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
+              disabled={otpSent || !!session}
+            />
+            {otpSent && (
+              <input
+                name="otp"
+                type="text"
+                placeholder="Enter 6-digit OTP"
+                required
+                maxLength={6}
+                value={formData.otp || ""}
+                onChange={handleChange}
+                className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition text-center tracking-[0.5rem]"
+              />
+            )}
+          </div>
+        );
+      case 1:
+        return (
+          <div className="flex flex-col gap-4 mt-4">
             <input
               name="grade"
               type="text"
@@ -74,7 +180,7 @@ export default function FreeTrialPage() {
               required
               value={formData.grade || ""}
               onChange={handleChange}
-              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
             />
 
             <div>
@@ -115,7 +221,7 @@ export default function FreeTrialPage() {
                 placeholder="Please specify subject"
                 value={formData.otherSubject || ""}
                 onChange={handleChange}
-                className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
               />
             )}
 
@@ -125,12 +231,12 @@ export default function FreeTrialPage() {
               placeholder="Specific Demo Topic (Optional)"
               value={formData.topic || ""}
               onChange={handleChange}
-              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
             />
           </div>
         );
 
-      case 1:
+      case 2:
         return (
           <div className="flex flex-col gap-4 mt-4">
             <input
@@ -140,7 +246,7 @@ export default function FreeTrialPage() {
               required
               value={formData.fatherName || ""}
               onChange={handleChange}
-              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
             />
             <input
               name="city"
@@ -149,7 +255,7 @@ export default function FreeTrialPage() {
               required
               value={formData.city || ""}
               onChange={handleChange}
-              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
             />
             <input
               name="country"
@@ -158,7 +264,7 @@ export default function FreeTrialPage() {
               required
               value={formData.country || ""}
               onChange={handleChange}
-              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
             />
             <input
               name="date"
@@ -166,7 +272,7 @@ export default function FreeTrialPage() {
               required
               value={formData.date || ""}
               onChange={handleChange}
-              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
             />
             <textarea
               name="comment"
@@ -174,7 +280,7 @@ export default function FreeTrialPage() {
               placeholder="Additional Comments"
               value={formData.comment || ""}
               onChange={handleChange}
-              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
             />
           </div>
         );
@@ -183,23 +289,57 @@ export default function FreeTrialPage() {
     }
   };
 
+  const renderButtons = () => {
+    if (activeStep === 0) {
+      return (
+        <div className="flex justify-center mt-6">
+          {!otpSent ? (
+            <button onClick={handleSendOtp} disabled={loading} className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:bg-blue-500/50">
+              {loading ? "Sending OTP..." : "Send OTP & Proceed"}
+            </button>
+          ) : (
+            <button onClick={handleVerifyOtp} disabled={isVerifying} className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:bg-blue-500/50">
+              {isVerifying ? "Verifying..." : "Verify & Continue"}
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    // Buttons for other steps remain the same
+    return (
+      <div className="flex justify-between mt-6">
+        <button onClick={handleBack} disabled={activeStep <= 1} className={`px-4 py-2 rounded-lg border transition ${activeStep <= 1 ? "opacity-50 cursor-not-allowed border-gray-600 text-gray-500" : "border-gray-600 hover:bg-gray-700"}`}>
+          Back
+        </button>
+        <button onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext} disabled={loading} className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:bg-blue-500/50">
+          {loading ? "Submitting..." : activeStep === steps.length - 1 ? "Finish" : "Next"}
+        </button>
+      </div>
+    );
+  };
+
   return (
-    <main className="mt-10 min-h-screen flex items-center justify-center p-6 text-white">
+    <main className="min-h-screen bg-black text-white flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="container mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch rounded-2xl border border-gray-200  shadow-xl overflow-hidden">
+        <div className="bg-gray-800 rounded-2xl border-2 border-blue-500 shadow-2xl shadow-blue-500/20 overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-stretch">
           {/* Left side */}
-          <div className="hidden lg:flex flex-col justify-center items-center text-center p-10 ">
-            <h1 className="text-3xl font-bold mb-3">Unlock Your Potential</h1>
-            <p className="max-w-md">
+          <div className="hidden lg:flex flex-col justify-center items-center text-center p-8 bg-gray-900/50">
+            <Image src="/home2.png" alt="Demo class illustration" width={300} height={300} className="mb-4" />
+            <h1 className="text-3xl font-bold mb-3 text-blue-400">Unlock Your Potential</h1>
+            <p className="max-w-md text-gray-300">
               Experience our interactive teaching methods firsthand. Our free demo class helps
               you understand our curriculum, meet expert tutors, and see how we make learning
               engaging and effective.
             </p>
+            <p className="mt-4 text-sm text-gray-400">
+              Just a few details and you'll be on your way to a brighter academic future!
+            </p>
           </div>
 
           {/* Right side */}
-          <div className="p-6 sm:p-10 md:p-12">
-            <h2 className="text-2xl font-semibold text-center ">
+          <div className="p-6 sm:p-8">
+            <h2 className="text-3xl font-bold text-center text-white">
               Book Your Free Demo Class
             </h2>
 
@@ -209,14 +349,14 @@ export default function FreeTrialPage() {
                 {steps.map((label, index) => (
                   <div key={index} className="flex flex-col items-center">
                     <div
-                      className={`w-8 h-8 flex items-center justify-center rounded-full border-2 
-                        ${index <= activeStep ? "border-purple-600 bg-purple-600 text-white" : "border-gray-300 text-gray-400"}`}
+                      className={`w-8 h-8 flex items-center justify-center rounded-full border-2 transition-colors
+                        ${index <= activeStep ? "border-blue-500 bg-blue-500 text-white" : "border-gray-600 text-gray-400"}`}
                     >
                       {index + 1}
                     </div>
                     <span
                       className={`text-sm mt-2 ${
-                        index <= activeStep ? "text-purple-600" : "text-gray-400"
+                        index <= activeStep ? "text-blue-400" : "text-gray-400"
                       }`}
                     >
                       {label}
@@ -230,17 +370,17 @@ export default function FreeTrialPage() {
             {activeStep === steps.length ? (
               <div className="text-center">
                 <h3 className="text-xl font-semibold mb-2">🎉 Demo Class Confirmed!</h3>
-                <p className="text-gray-700 mb-1">
+                <p className="text-gray-300 mb-1">
                   Your demo class for{" "}
                   <strong>{new Date(formData.date).toLocaleString()}</strong> has been booked.
                 </p>
-                <p className="text-gray-500 mb-4">
+                <p className="text-gray-400 mb-4">
                   A confirmation email has been sent to <strong>{formData.email}</strong>.
                 </p>
                 <div className="flex justify-center gap-4">
                   <button
                     onClick={handleReset}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                   >
                     Book Another Demo
                   </button>
@@ -252,56 +392,11 @@ export default function FreeTrialPage() {
                   </Link>
                 </div>
               </div>
-            ) : status === "unauthenticated" ? (
-              <div className="text-center mt-6 p-6 border-2 border-dashed border-gray-300 rounded-lg">
-                <p className="text-lg font-medium mb-3 text-gray-700">
-                  Please log in to book a demo class.
-                </p>
-                <button
-                  onClick={() => openModal('login')}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-                >
-                  Login
-                </button>
-              </div>
-            ) : status === "authenticated" && session.user.role !== 'student' ? (
-              <div className="text-center mt-6 p-6 border-2 border-dashed border-gray-300 rounded-lg">
-                <p className="text-lg font-medium mb-3 text-gray-700">
-                  Only students can book a free demo class.
-                </p>
-                <p className="text-sm text-gray-500">
-                  Please log in with a student account to proceed.
-                </p>
-              </div>
             ) : (
               <>
                 {error && <p className="text-red-600 text-center mt-2">{error}</p>}
                 {renderStep(activeStep)}
-                <div className="flex justify-between mt-6">
-                  <button
-                    onClick={handleBack}
-                    disabled={activeStep === 0}
-                    className={`px-4 py-2 rounded-lg border transition ${
-                      activeStep === 0
-                        ? "opacity-50 cursor-not-allowed border-gray-200 text-gray-400"
-                        : "border-gray-300 hover:bg-gray-100"
-                    }`}
-                  >
-                    Back
-                  </button>
-
-                  <button
-                    onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
-                    disabled={loading}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-                  >
-                    {loading
-                      ? "Submitting..."
-                      : activeStep === steps.length - 1
-                      ? "Finish"
-                      : "Next"}
-                  </button>
-                </div>
+                {renderButtons()}
               </>
             )}
           </div>

@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbConnect';
 import Course from '@/models/Course';
 import CompletedClass from '@/models/CompletedClass';
+import cloudinary from '@/lib/cloudinary';
 import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
@@ -18,10 +19,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { courseId, topic, duration } = await request.json();
+    const formData = await request.formData();
+    const courseId = formData.get('courseId') as string;
+    const topic = formData.get('topic') as string;
+    const duration = formData.get('duration') as string | null;
+    const homeworkFile = formData.get('homeworkFile') as File | null;
 
     if (!courseId || !topic) {
       return NextResponse.json({ message: 'Course ID and topic are required' }, { status: 400 });
+    }
+
+    let homeworkFileUrl: string | undefined;
+
+    if (homeworkFile) {
+      try {
+        const fileBuffer = await homeworkFile.arrayBuffer();
+        const mimeType = homeworkFile.type;
+        const encoding = 'base64';
+        const base64Data = Buffer.from(fileBuffer).toString('base64');
+        const fileUri = `data:${mimeType};${encoding},${base64Data}`;
+
+        const result = await cloudinary.uploader.upload(fileUri, {
+          folder: 'tuition-ed/homework',
+        });
+        homeworkFileUrl = result.secure_url;
+      } catch (uploadError: any) {
+        return NextResponse.json({ message: `File upload failed: ${uploadError.message}` }, { status: 500 });
+      }
     }
 
     let newCompletedClass;
@@ -54,6 +78,7 @@ export async function POST(request: NextRequest) {
         studentId: course.studentId,
         topic,
         duration: duration ? Number(duration) : undefined,
+        homeworkFile: homeworkFileUrl,
       });
 
       await newCompletedClass.save({ session: dbSession });

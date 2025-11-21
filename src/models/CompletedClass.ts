@@ -7,6 +7,7 @@ export interface ICompletedClass extends Document {
   topic: string;
   duration?: number; // Duration in minutes
   homeworkAssigned?: string;
+  homeworkFile?: string;
   completedAt: Date;
 }
 
@@ -17,6 +18,7 @@ const CompletedClassSchema: Schema<ICompletedClass> = new Schema({
   topic: { type: String, required: true },
   duration: { type: Number }, // Optional: duration in minutes
   homeworkAssigned: { type: String }, // Optional: details about homework
+  homeworkFile: { type: String },
   completedAt: { type: Date, default: Date.now, required: true },
 }, { timestamps: true });
 

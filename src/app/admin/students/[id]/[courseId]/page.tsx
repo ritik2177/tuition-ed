@@ -27,6 +27,7 @@ import {
   IndianRupee,
   Calendar,
   Clock,
+  Download,
 } from "lucide-react";
 import { Edit } from "lucide-react";
 import Link from "next/link";
@@ -34,12 +35,21 @@ import CourseMessageModal from "@/components/CourseMessageModal";
 import { CourseDetails } from "@/types/admin";
 import AdminCourseEditModal from "@/components/AdminCourseEditModal";
 
+interface CompletedClass {
+  _id: string;
+  topic: string;
+  duration?: number;
+  completedAt: string;
+  homeworkFile?: string;
+}
+
 export default function AdminCourseDetailPage() {
   const params = useParams();
   const router = useRouter();
   const courseId = params.courseId as string;
 
   const [course, setCourse] = useState<CourseDetails | null>(null);
+  const [completedClasses, setCompletedClasses] = useState<CompletedClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
@@ -58,6 +68,7 @@ export default function AdminCourseDetailPage() {
           throw new Error(data.message || "Failed to fetch course details.");
         }
         setCourse(data.course);
+        setCompletedClasses(data.completedClasses || []);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -200,6 +211,47 @@ export default function AdminCourseDetailPage() {
               <Typography variant="body1" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
                 {course.description}
               </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Completed Classes History */}
+        <Box>
+          <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardHeader title="Completed Class History" />
+            <Divider />
+            <CardContent>
+              {completedClasses.length > 0 ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {completedClasses.map((c) => (
+                    <Paper key={c._id} variant="outlined" sx={{ p: 2, borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography variant="body1" fontWeight="500">{c.topic}</Typography>
+                        {c.homeworkFile && (
+                          <Button
+                            variant="text"
+                            size="small"
+                            startIcon={<Download size={16} />}
+                            href={c.homeworkFile}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                            sx={{ mt: 0.5, p: 0.5, textTransform: 'none' }}
+                          >
+                            Download Homework
+                          </Button>
+                        )}
+                      </Box>
+                      <Box textAlign="right">
+                        <Typography variant="body2" color="text.secondary">{new Date(c.completedAt).toLocaleDateString()}</Typography>
+                        {c.duration && <Typography variant="caption" color="text.secondary">{c.duration} mins</Typography>}
+                      </Box>
+                    </Paper>
+                  ))}
+                </Box>
+              ) : (
+                <Alert severity="info" variant="outlined">No classes have been marked as complete yet.</Alert>
+              )}
             </CardContent>
           </Card>
         </Box>

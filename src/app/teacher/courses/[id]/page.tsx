@@ -17,8 +17,10 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  IconButton
+  IconButton,
+  Input,
 } from "@mui/material";
+import { Download } from "lucide-react";
 import { toast } from "sonner";
 import CourseMessageModal from "@/components/CourseMessageModal";
 import Link from "next/link";
@@ -60,6 +62,7 @@ interface CompletedClass {
   topic: string;
   duration?: number;
   completedAt: string;
+  homeworkFile?: string;
 }
 
 interface ApiResponse {
@@ -77,6 +80,7 @@ export default function CourseDetailsPage() {
   // Dialog state
   const [topic, setTopic] = useState("");
   const [duration, setDuration] = useState("");
+  const [homeworkFile, setHomeworkFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
@@ -114,16 +118,19 @@ export default function CourseDetailsPage() {
 
     setIsSubmitting(true);
     try {
-      const body = {
-        courseId,
-        topic,
-        duration: duration ? Number(duration) : undefined,
-      };
+      const formData = new FormData();
+      formData.append('courseId', courseId as string);
+      formData.append('topic', topic);
+      if (duration) {
+        formData.append('duration', duration);
+      }
+      if (homeworkFile) {
+        formData.append('homeworkFile', homeworkFile);
+      }
 
       const response = await fetch("/api/classCompleted", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: formData,
       });
 
       const result = await response.json();
@@ -134,6 +141,7 @@ export default function CourseDetailsPage() {
       await fetchCourseDetails();
       setTopic("");
       setDuration("");
+      setHomeworkFile(null);
       setIsDialogOpen(false);
     } catch (err: any) {
       toast.error(err.message);
@@ -430,6 +438,22 @@ export default function CourseDetailsPage() {
                             </Box>
                           )}
                         </Box>
+                        {c.homeworkFile && (
+                          <Button
+                            variant="text"
+                            size="small"
+                            startIcon={<Download size={16} />}
+                            href={c.homeworkFile}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                            sx={{
+                              mt: 1,
+                              p: 0.5,
+                              color: 'primary.light'
+                            }}
+                          >View Homework</Button>
+                        )}
                       </Box>
                     </Box>
                   ))}
@@ -481,6 +505,25 @@ export default function CourseDetailsPage() {
                 onChange={(e) => setDuration(e.target.value)}
                 fullWidth
               />
+              <Button
+                variant="outlined"
+                component="label"
+              >
+                {homeworkFile ? `Selected: ${homeworkFile.name}` : "Upload Homework (Image only)"}
+                <input
+                  type="file"
+                  hidden
+                  onChange={(e) => {
+                    const file = e.target.files ? e.target.files[0] : null;
+                    if (file && file.type.startsWith("image/")) {
+                      setHomeworkFile(file);
+                    } else {
+                      toast.error("Please select an image file.");
+                    }
+                  }}
+                  accept="image/*"
+                />
+              </Button>
             </Box>
           </DialogContent>
           <DialogActions sx={{ p: 3, pt: 2 }}>

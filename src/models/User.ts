@@ -22,6 +22,7 @@ export interface IUser extends Document {
   qualification?: string;
   experience?: string;
   listOfSubjects?: string[];
+  profileImage?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +50,7 @@ const UserSchema: Schema<IUser> = new Schema({
   otp: { type: String },
   otpExpires: { type: Date },
   isVerified: { type: Boolean, default: false },
+  profileImage: { type: String },
   isAcceptingMessages: { type: Boolean, default: true },
   messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
 }, { timestamps: true });

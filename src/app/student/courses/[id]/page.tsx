@@ -31,6 +31,7 @@ import {
   Minus,
   MessageSquare,
 } from "lucide-react";
+import { Download } from "lucide-react";
 import Calendar from "@/components/lightswind/calendar";
 import { toast } from "sonner";
 import CourseMessageModal from "@/components/CourseMessageModal";
@@ -61,6 +62,7 @@ interface CompletedClass {
   topic: string;
   duration?: number;
   completedAt: string;
+  homeworkFile?: string;
 }
 
 interface ApiResponse {
@@ -675,12 +677,29 @@ export default function CourseDetailPage() {
           {completedClasses.length > 0 ? (
             completedClasses.map((c) => (
               <Paper key={c._id} className="border-blue-500 border-2" sx={{ p: 2, borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: '#1f2937' }}>
-                <Typography variant="body1" fontWeight="medium">{c.topic}</Typography>
-                <Box textAlign="right">
-                  <Typography variant="body2" color="text.secondary">
-                    {new Date(c.completedAt).toLocaleDateString()}
-                  </Typography>
-                  {c.duration && <Typography variant="caption" color="text.secondary">{c.duration} mins</Typography>}
+                <Box>
+                  <Typography variant="body1" fontWeight="medium">{c.topic}</Typography>
+                  {c.homeworkFile && (
+                    <Button
+                      variant="text"
+                      size="small"
+                      startIcon={<Download size={16} />}
+                      href={c.homeworkFile}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      sx={{
+                        mt: 1,
+                        p: 0.5,
+                        color: 'primary.light',
+                        textTransform: 'none'
+                      }}
+                    >View Homework</Button>
+                  )}
+                </Box>
+                <Box textAlign="right" sx={{ flexShrink: 0, ml: 2 }}>
+                  <Typography variant="body2" color="text.secondary">{new Date(c.completedAt).toLocaleDateString()}</Typography>
+                  {c.duration && <Typography variant="caption" display="block" color="text.secondary">{c.duration} mins</Typography>}
                 </Box>
               </Paper>
             ))
