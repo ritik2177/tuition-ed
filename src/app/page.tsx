@@ -8,7 +8,6 @@ import Image from "next/image"; // Assuming you have an Image component
 import * as React from 'react';
 import Timeline from '@mui/lab/Timeline';
 import TimelineItem from '@mui/lab/TimelineItem';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
@@ -17,6 +16,7 @@ import FastfoodIcon from '@mui/icons-material/Fastfood';
 import LaptopMacIcon from '@mui/icons-material/LaptopMac';
 import HotelIcon from '@mui/icons-material/Hotel';
 import RepeatIcon from '@mui/icons-material/Repeat';
+import { TimelineSeparator } from "@mui/lab";
 import Typography from '@mui/material/Typography';
 
 const teamMembers: TeamMember[] = [
@@ -60,31 +60,36 @@ const teamMembers: TeamMember[] = [
 export default function Home() {
   return <main>
     {/* Hero Section */}
-    <section className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left side: Text content */}
-          <div className="text-center lg:text-left">
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground">
-              Expert Online Tutoring Services for K-12 & College
-            </h1>
-            <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 text-muted-foreground">
-              Begin your academic adventure with us at Tuitioned, where each step leads to personal and academic growth. Our dedicated educators are here to guide you, providing the support needed for academic success. 🎉
-            </p>
-            <a href="/get-a-free-tail">
-              <RippleButton className="mt-6 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-blue-500 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300 transform hover:scale-105">
-                <span className="flex items-center">
-                  Get a Free Trial
-                  <GoArrowRight className="ml-2" />
-                </span>
-              </RippleButton>
-            </a>
-          </div>
-          {/* Right side: Image */}
-          <div className="relative w-full h-80 lg:h-[500px]">
-            <Image src="/home2.png" alt="Hero Image" layout="fill" objectFit="contain" className="rounded-lg" />
-          </div>
+    <section className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8">
+      {/* Background Grid */}
+      <div className="absolute inset-0 h-full w-full bg-background bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+
+      {/* Spotlight Effect */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+
+      {/* Content */}
+      <div className="relative z-10 text-center">
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
+          Expert Online Tutoring
+        </h1>
+        <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-muted-foreground">
+          Begin your academic adventure with us at Tuitioned, where each step leads to personal and academic growth. Our dedicated educators are here to guide you, providing the support needed for academic success. 🎉
+        </p>
+        <div className="mt-8 flex justify-center gap-4">
+          <a href="/get-a-free-tail">
+            <RippleButton className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300 transform hover:scale-105">
+              <span className="flex items-center">
+                Get a Free Trial
+                <GoArrowRight className="ml-2" />
+              </span>
+            </RippleButton>
+          </a>
         </div>
+      </div>
+
+      {/* Animated Avatars at the bottom */}
+      <div className="absolute bottom-10 flex flex-row items-center justify-center w-full">
+        <AnimatedTooltipPreview />
       </div>
     </section>
 

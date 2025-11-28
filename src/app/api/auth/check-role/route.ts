@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ role: user.role }, { status: 200 });
   } catch (error) {
+    console.error("CHECK_ROLE_ERROR:", error); // Add detailed logging
     return NextResponse.json({ message: "An unexpected error occurred." }, { status: 500 });
   }
 }
-

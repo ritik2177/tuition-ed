@@ -18,6 +18,7 @@ import Avatar from '@mui/material/Avatar';
 import { LayoutDashboard, BookOpen, User, LogOut, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 
 const drawerWidth = 240;
 
@@ -33,6 +34,7 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -50,29 +52,46 @@ export default function StudentLayout({
 
   const drawerContent = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
-          <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
             TuitionEd
           </Typography>
         </Link>
       </Toolbar>
       <Divider />
       <List>
-        {navItems.map((item) => (
-          <ListItem key={item.text} disablePadding component={Link} href={item.href} sx={{ color: 'inherit', textDecoration: 'none' }}>
-            <ListItemButton>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {navItems.map((item) => {
+          const isActive = pathname.startsWith(item.href);
+          return (
+            <ListItem key={item.text} disablePadding component={Link} href={item.href} sx={{ color: 'inherit', textDecoration: 'none' }}>
+              <ListItemButton
+                sx={{
+                  bgcolor: isActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.04)' },
+                  m: 1,
+                  borderRadius: 2,
+                }}
+              >
+                <ListItemIcon sx={{ color: isActive ? 'primary.main' : 'rgba(255, 255, 255, 0.7)' }}>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} sx={{ color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)' }} />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
-      <Divider />
       <List sx={{ marginTop: 'auto' }}>
+        <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)' }} />
         <ListItem disablePadding>
-          <ListItemButton onClick={() => signOut({ callbackUrl: process.env.NEXT_PUBLIC_BASE_URL })}>
-            <ListItemIcon><LogOut size={20} /></ListItemIcon>
+          <ListItemButton
+            onClick={() => signOut({ callbackUrl: '/' })}
+            sx={{
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.04)' },
+              m: 1,
+              borderRadius: 2,
+            }}
+          >
+            <ListItemIcon sx={{ color: 'rgba(255, 255, 255, 0.7)' }}><LogOut size={20} /></ListItemIcon>
             <ListItemText primary="Logout" />
           </ListItemButton>
         </ListItem>
@@ -101,11 +120,11 @@ export default function StudentLayout({
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          bgcolor: '#1e2939', // gray-800
-          color: 'text.primary',
+          bgcolor: '#111827', // Dark background
+          color: 'white',
           boxShadow: 'none',
           borderBottom: '1px solid',
-          borderColor: '#3080ff' // blue-500
+          borderColor: 'rgba(255, 255, 255, 0.12)'
         }}
       >
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -133,9 +152,9 @@ export default function StudentLayout({
           width: { sm: drawerWidth },
           flexShrink: { sm: 0 },
           '& .MuiDrawer-paper': {
+            bgcolor: '#111827', // Dark background
+            color: 'white',
             width: drawerWidth,
-            bgcolor: '#1e2939', // gray-800
-            borderRight: '1px solid #3080ff', // blue-500
             boxSizing: 'border-box',
           },
         }}
@@ -149,11 +168,11 @@ export default function StudentLayout({
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
-              bgcolor: '#1e2939', // gray-800
-              borderRight: '1px solid #3080ff', // blue-500
+              bgcolor: '#111827',
+              color: 'white'
             },
           }}
         >
@@ -163,11 +182,11 @@ export default function StudentLayout({
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
-              bgcolor: '#1e2939', // gray-800
-              borderRight: '1px solid #3080ff', // blue-500
+              bgcolor: '#111827',
+              color: 'white'
             },
           }}
           open
@@ -177,7 +196,7 @@ export default function StudentLayout({
       </Box>
       <Box
         component="main"
-        sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
+        sx={{ flexGrow: 1, bgcolor: '#030712', p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
       >
         {children}
       </Box>

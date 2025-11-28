@@ -1,12 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import { Search, Menu, X } from 'lucide-react';
+import {
+    Button,
+    Avatar,
+    Menu as MuiMenu,
+    MenuItem,
+    ListItemIcon,
+    ListItemText,
+    Divider,
+} from '@mui/material';
+import { Menu, X, LayoutDashboard, LogOut } from 'lucide-react';
 import LoginModal from './LoginModal';
 import SignUpModal from './SignUpModal';
 import TeacherAuthModal from './TeacherAuthModal';
@@ -21,19 +27,42 @@ const Logo = () => (
 );
 
 const navLinks = [
-    { href: '/courses', label: 'Courses' },
-    { href: '/about', label: 'About' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/contact', label: 'Contact' },
+    { href: 'https://tuition-ed.com/k-12-school-time-courses/', label: 'Courses' },
+    { href: 'https://tuition-ed.com/about-us/', label: 'About' },
+    { href: 'https://tuition-ed.com/blog/', label: 'Blog' },
+    { href: 'https://tuition-ed.com/contact-us/', label: 'Contact' },
 ];
 
 const Navbar = () => {
     const { data: session, status } = useSession();
     const { activeModal, openModal, closeModal, switchModal } = useUI();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const isUserMenuOpen = Boolean(anchorEl);
+
+    const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleUserMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleLogout = () => {
+        handleUserMenuClose();
+        signOut({ callbackUrl: '/' });
+    };
+
+    const getInitials = (name: string = "") => {
+        return name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase();
+    };
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background backdrop-blur-lg">
+        <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-lg">
             <nav className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
                 <div className="flex items-center space-x-8">
                     <Logo />
@@ -42,46 +71,35 @@ const Navbar = () => {
                     </div>
                 </div>
                 {/* Desktop right side */}
-                <div className="hidden md:flex items-center gap-4">
-                    <TextField
-                        placeholder="Search for courses..."
-                        variant="outlined"
-                        size="small"
-                        className="[&_.MuiInputBase-root]:h-10 [&_.MuiInputBase-root]:bg-muted [&_.MuiInputBase-root]:text-muted-foreground [&_.MuiOutlinedInput-notchedOutline]:border-border hover:[&_.MuiOutlinedInput-notchedOutline]:border-ring focus-within:[&_.MuiOutlinedInput-notchedOutline]:border-ring"
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start"> <Search className="h-5 w-5 text-foreground" /> </InputAdornment>
-                            ),
-                        }}
-                    />
+                <div className="hidden md:flex items-center gap-2">
                     {status === 'authenticated' ? (
                         <>
                             <Button
-                                component={Link}
-                                href="/dashboard"
-                                variant="text"
-                                sx={{
-                                    color: 'inherit',
-                                    '&:hover': { backgroundColor: 'action.hover' }
-                                }}
+                                onClick={handleUserMenuOpen}
+                                sx={{ borderRadius: '9999px', p: 0.5, minWidth: 0 }}
                             >
-                                Dashboard
+                                <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '0.875rem' }}>
+                                    {getInitials(session.user?.fullName)}
+                                </Avatar>
                             </Button>
-                            <span className="text-sm font-medium text-foreground whitespace-nowrap">
-                                Hi, {session.user?.fullName?.split(' ')[0]}
-                            </span>
-                            <Button
-                                variant="contained"
-                                onClick={() => signOut({ callbackUrl: '/' })}
-                                sx={{
-                                    height: '40px',
-                                    backgroundColor: '#fff',
-                                    color: '#000',
-                                    '&:hover': { backgroundColor: '#f0f0f0' }
-                                }}
+                            <MuiMenu
+                                anchorEl={anchorEl}
+                                open={isUserMenuOpen}
+                                onClose={handleUserMenuClose}
+                                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                PaperProps={{ sx: { mt: 1.5, bgcolor: '#1f2937', color: 'white', borderRadius: 2 } }}
                             >
-                                Logout
-                            </Button>
+                                <MenuItem component={Link} href="/dashboard" onClick={handleUserMenuClose}>
+                                    <ListItemIcon><LayoutDashboard size={20} className="text-white/70" /></ListItemIcon>
+                                    <ListItemText>Dashboard</ListItemText>
+                                </MenuItem>
+                                <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)' }} />
+                                <MenuItem onClick={handleLogout}>
+                                    <ListItemIcon><LogOut size={20} className="text-white/70" /></ListItemIcon>
+                                    <ListItemText>Logout</ListItemText>
+                                </MenuItem>
+                            </MuiMenu>
                         </>
                     ) : (<>
                         <Button
@@ -124,20 +142,6 @@ const Navbar = () => {
                     }`}
             >
                 <div className="px-4 pt-2 pb-4 space-y-4">
-                    <TextField
-                        placeholder="Search for courses..."
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                        className="[&_.MuiInputBase-root]:h-10 [&_.MuiInputBase-root]:bg-muted [&_.MuiInputBase-root]:text-muted-foreground [&_.MuiOutlinedInput-notchedOutline]:border-border hover:[&_.MuiOutlinedInput-notchedOutline]:border-ring focus-within:[&_.MuiOutlinedInput-notchedOutline]:border-ring"
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Search className="h-5 w-5 text-foreground" />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
                     <div className="flex flex-col space-y-2">
                         {navLinks.map((link) => (
                             <Link key={link.href} href={link.href} className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:text-primary hover:bg-muted" onClick={() => setIsMobileMenuOpen(false)}>
