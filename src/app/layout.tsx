@@ -18,11 +18,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "TuitionEd",
     description: "Expert Online Tutoring for personal and academic growth.",
-    url: "https://tuitioned.vercel.app", // Replace with your actual domain
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
     siteName: "TuitionEd",
     images: [
       {
-        url: "/logo.png", // Make sure to create this image and place it in the `public` folder
+        url: "/logo.png",
         width: 1200,
         height: 630,
       },
@@ -46,9 +46,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "TuitionEd",
-              url: "https://tuitioned.vercel.app", // Replace with your actual domain
-              logo: "https://tuitioned.vercel.app/logo.png", // Replace with the full URL to your logo
+              name: "TuitionEd", 
+              url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+              logo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/logo.png`,
             }),
           }}
         />
