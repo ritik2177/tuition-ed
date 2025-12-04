@@ -22,7 +22,6 @@ interface DemoClass {
 interface AssignedCourse {
   _id: string;
   title: string;
-  teacherName: string;
   classTime: string;
   classDays: string;
   joinLink: string;
@@ -143,9 +142,6 @@ export default function StudentDashboardPage() {
                 <Card key={course._id} className="flex flex-col group bg-gray-800 border-blue-500 border-2">
                   <CardHeader className="pb-4">
                     <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">{course.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground pt-1">
-                      <span className="font-medium">Teacher:</span> {course.teacherName || 'TBD'}
-                    </p>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
                     <div className="flex items-center gap-2">
@@ -181,7 +177,7 @@ export default function StudentDashboardPage() {
       {/* Demo Classes Section */}
       <Card className=" border-blue-500 border-2">
         <CardHeader>
-          <CardTitle>My Demo Classes</CardTitle>
+          <CardTitle>My Trail Classes</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoadingClasses ? (
@@ -211,7 +207,7 @@ export default function StudentDashboardPage() {
               ))}
             </div>
           ) : (
-            <Alert severity="info">You have no demo classes booked. Use the button above to book one!</Alert>
+            <Alert severity="info">You have no Trail classes booked. Use the button above to book one!</Alert>
           )}
         </CardContent>
       </Card>

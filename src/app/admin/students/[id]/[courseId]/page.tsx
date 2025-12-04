@@ -22,6 +22,7 @@ import {
   ArrowLeft,
   MessageSquare,
   BookOpen,
+  CreditCard,
   GraduationCap,
   Hash,
   IndianRupee,
@@ -33,6 +34,7 @@ import { Edit } from "lucide-react";
 import Link from "next/link";
 import CourseMessageModal from "@/components/CourseMessageModal";
 import { CourseDetails } from "@/types/admin";
+import { ITransaction } from "@/models/Transaction";
 import AdminCourseEditModal from "@/components/AdminCourseEditModal";
 
 interface CompletedClass {
@@ -50,6 +52,7 @@ export default function AdminCourseDetailPage() {
 
   const [course, setCourse] = useState<CourseDetails | null>(null);
   const [completedClasses, setCompletedClasses] = useState<CompletedClass[]>([]);
+  const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
@@ -61,14 +64,25 @@ export default function AdminCourseDetailPage() {
     const fetchCourseDetails = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/course/${courseId}`);
-        const data = await response.json();
+        // Fetch course and transaction details in parallel
+        const [courseRes, transactionsRes] = await Promise.all([
+          fetch(`/api/course/${courseId}`),
+          fetch(`/api/transactions?courseId=${courseId}`)
+        ]);
 
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || "Failed to fetch course details.");
+        const courseData = await courseRes.json();
+        if (!courseRes.ok || !courseData.success) {
+          throw new Error(courseData.message || "Failed to fetch course details.");
         }
-        setCourse(data.course);
-        setCompletedClasses(data.completedClasses || []);
+        setCourse(courseData.course);
+        setCompletedClasses(courseData.completedClasses || []);
+
+        const transactionsData = await transactionsRes.json();
+        if (transactionsRes.ok && transactionsData.success) {
+          setTransactions(transactionsData.transactions || []);
+        } else {
+          console.warn("Could not fetch transaction details:", transactionsData.message);
+        }
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -212,6 +226,63 @@ export default function AdminCourseDetailPage() {
                 {course.description}
               </Typography>
             </CardContent>
+          </Card>
+        </Box>
+
+        {/* Transaction History */}
+        <Box>
+          <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardHeader
+              title="Transaction History"
+              action={
+                <Button
+                  component={Link}
+                  href={`/admin/students/${params.id}/${courseId}/transaction`}
+                  size="small"
+                >View All</Button>
+              }
+            />
+            <Divider />
+            {/* <CardContent>
+              {transactions.length > 0 ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {transactions.map((tx) => ( 
+                    <Paper key={tx._id.toString()} variant="outlined" sx={{ p: 2, borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography variant="body1" fontWeight="500">
+                          {tx.numberOfClasses} {tx.numberOfClasses > 1 ? 'classes' : 'class'} added
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                          <CreditCard size={14} /> {tx.transactionId}
+                        </Typography>
+                      </Box>
+                      <Box textAlign="right">
+                        <Chip
+                          label={tx.paymentStatus.toUpperCase()}
+                          size="small"
+                          color={
+                            tx.paymentStatus === 'completed' ? 'success' :
+                            tx.paymentStatus === 'pending' ? 'warning' : 'error'
+                          }
+                          variant="outlined"
+                          sx={{ mb: 0.5 }}
+                        />
+                        <Typography variant="body1" fontWeight="500">
+                          ₹{tx.amount.toFixed(2)}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {new Date(tx.createdAt).toLocaleString()}
+                        </Typography>
+                      </Box>
+                    </Paper>
+                  ))}
+                </Box>
+              ) : (
+                <Alert severity="info" variant="outlined">
+                  No transactions found for this course.
+                </Alert>
+              )}
+            </CardContent> */}
           </Card>
         </Box>
 

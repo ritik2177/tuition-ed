@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { useParams, useRouter, notFound } from "next/navigation";
+import { useSession } from "next-auth/react"; 
+import { useParams, useRouter, notFound, useSearchParams } from "next/navigation";
 import {
   CircularProgress,
   Alert,
@@ -79,6 +79,7 @@ const statusColors = {
 export default function CourseDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const courseId = Array.isArray(params.id) ? params.id[0] : (params.id as string);
 
@@ -91,6 +92,15 @@ export default function CourseDetailPage() {
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false); // New state for message modal
   const [classesToAdd, setClassesToAdd] = useState(1);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setClassesToAdd(1); // Reset on close
+  };
+
+  const handleIncrease = () => setClassesToAdd((prev) => prev + 1);
+  const handleDecrease = () => setClassesToAdd((prev) => Math.max(1, prev - 1));
 
   useEffect(() => {
     if (!courseId) return;
@@ -131,7 +141,19 @@ export default function CourseDetailPage() {
     };
 
     fetchCourseDetails();
-  }, [courseId, notFound]);
+
+    // Check for payment retry parameters in the URL
+    const retry = searchParams.get('retry');
+    const classes = searchParams.get('classes');
+
+    if (retry === 'true' && classes) {
+      const numClasses = parseInt(classes, 10);
+      if (!isNaN(numClasses) && numClasses > 0) {
+        setClassesToAdd(numClasses);
+        handleOpenModal();
+      }
+    }
+  }, [courseId, notFound, searchParams]);
 
   if (loading) {
     return (
@@ -148,16 +170,6 @@ export default function CourseDetailPage() {
   if (!course) {
     return notFound();
   }
-
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setClassesToAdd(1); // Reset on close
-    router.refresh(); // Refresh to show updated class count if payment was successful
-  };
-
-  const handleIncrease = () => setClassesToAdd((prev) => prev + 1);
-  const handleDecrease = () => setClassesToAdd((prev) => Math.max(1, prev - 1));
 
   const handleProcessPayment = async () => {
     if (!session?.user) {
@@ -245,7 +257,6 @@ export default function CourseDetailPage() {
             toast.success("Payment successful! Your course has been updated.");
             router.refresh(); // Refresh the page to show updated class count
             handleCloseModal();
-            setIsProcessing(false);
           } else {
             const errorData = await updateRes.json();
             toast.error(errorData.message || "Failed to update course after payment.");
@@ -268,7 +279,6 @@ export default function CourseDetailPage() {
                 status: 'failed',
               }),
             });
-            setIsProcessing(false);
           },
         },
         theme: { color: "#4f46e5" }, // Indigo color
@@ -285,6 +295,7 @@ export default function CourseDetailPage() {
 
     } catch (error: any) {
       toast.error(error.message || "An unexpected error occurred.");
+    } finally {
       setIsProcessing(false);
     }
   };
