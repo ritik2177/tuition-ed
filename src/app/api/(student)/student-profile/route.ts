@@ -71,16 +71,13 @@ export async function PUT(request: NextRequest) {
       { new: true, runValidators: true }
     ).select('-otp -otpExpires -isVerified -messages');
 
-    // Find the latest DemoClass and update it
-    const demoClass = await DemoClass.findOneAndUpdate(
+    // Find the latest DemoClass and update it, or create one if it doesn't exist.
+    // This prevents an error if the user has a profile but no demo class booking yet.
+    await DemoClass.findOneAndUpdate(
       { studentId },
       { $set: { grade, fatherName } },
-      { sort: { createdAt: -1 }, new: true }
+      { sort: { createdAt: -1 }, new: true, upsert: true } // upsert:true creates the doc if it doesn't exist
     );
-
-    if (!demoClass) {
-      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
-    }
 
     return NextResponse.json({ success: true, message: 'Profile updated successfully.' });
   } catch (error) {

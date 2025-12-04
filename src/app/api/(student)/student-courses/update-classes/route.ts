@@ -4,6 +4,7 @@ import Course from "@/models/Course";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import crypto from "crypto";
+import { sendEmail } from "@/lib/sendEmail";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
       razorpay_payment_id,
       razorpay_signature,
       courseId,
-      classesAdded,
+      classesToAdd, // Corrected from classesAdded to match the frontend payload
     } = await request.json();
 
     // 1. Verify the payment signature
@@ -51,8 +52,28 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    course.noOfClasses += Number(classesAdded);
+    // Safely update the number of classes
+    const currentClasses = course.noOfClasses || 0;
+    const classesToAddNumeric = Number(classesToAdd);
+
+    // Ensure we are adding a valid number
+    course.noOfClasses = currentClasses + (isNaN(classesToAddNumeric) ? 0 : classesToAddNumeric);
     await course.save();
+
+    // 3. Send a success email
+    if (session.user.email) {
+      await sendEmail({
+        to: session.user.email,
+        subject: "Classes Added Successfully!",
+        html: `
+          <h1>Payment Successful!</h1>
+          <p>Hi ${session.user.name || 'Student'},</p>
+          <p>We're happy to let you know that <strong>${classesToAddNumeric}</strong> new classes have been successfully added to your course: <strong>${course.title}</strong>.</p>
+          <p>Your new total class count is <strong>${course.noOfClasses}</strong>.</p>
+          <p>Happy learning!</p>
+        `,
+      });
+    }
 
     return NextResponse.json({
       message: "Course updated successfully",
@@ -66,4 +87,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

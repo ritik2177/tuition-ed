@@ -176,7 +176,11 @@ export default function CourseDetailPage() {
       const res = await fetch("/api/razorpay/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: totalPrice, courseId: course._id, classesToAdd }),
+        body: JSON.stringify({
+          amount: totalPrice,
+          // Using a shorter receipt ID to stay within Razorpay's 40-character limit.
+          receipt: `rec_${course._id}_${Date.now() % 10000000}`,
+        }),
       });
       const order = await res.json();
 
@@ -184,16 +188,35 @@ export default function CourseDetailPage() {
         throw new Error(order.message || "Failed to create payment order.");
       }
 
-      // 2. Open Razorpay checkout
-      const options: RazorpayOptions = {
+      // 2. Create a pending transaction record in the database
+      const transactionRes = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseId: course._id,
+          amount: totalPrice,
+          numberOfClasses: classesToAdd,
+          currency: order.currency,
+          transactionId: order.id, // Razorpay Order ID
+          paymentGateway: 'Razorpay',
+        }),
+      });
+
+      if (!transactionRes.ok) {
+        console.error("Failed to create pending transaction record.");
+        // We can still proceed with payment, but this should be logged.
+      }
+
+      // 3. Open Razorpay checkout
+      const options: RazorpayOptions & { modal: { ondismiss: () => void } } = {
         key: process.env.NEXT_PUBLIC_RP_KEY_ID ?? "",
         amount: order.amount,
         currency: order.currency,
         name: "Tuition ED",
         description: `Payment for ${classesToAdd} extra classes for ${course.title}`,
         order_id: order.id,
-        handler: async function (response) {
-          // 3. Verify payment and update database
+        handler: async function (response) { // This handler is only called on successful payment
+          // 4. Verify payment and update database (which adds the classes)
           const updateRes = await fetch("/api/student-courses/update-classes", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -202,11 +225,23 @@ export default function CourseDetailPage() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
               courseId: course._id,
-              classesAdded: classesToAdd,
+              classesToAdd: classesToAdd, // Corrected parameter name
+              currentClasses: course.noOfClasses, // Pass current classes for safe calculation
+              paymentStatus: 'completed', // Set the new payment status for the course
             }),
           });
 
           if (updateRes.ok) {
+            // 5. Update the transaction status to 'completed'
+            await fetch('/api/transactions', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                transactionId: response.razorpay_order_id,
+                status: 'completed',
+              }),
+            });
+
             toast.success("Payment successful! Your course has been updated.");
             router.refresh(); // Refresh the page to show updated class count
             handleCloseModal();
@@ -220,6 +255,21 @@ export default function CourseDetailPage() {
           name: session.user.name ?? "",
           email: session.user.email ?? "",
           contact: (session.user as any).mobile || "",
+        },
+        modal: {
+          ondismiss: async () => {
+            toast.info("Payment was cancelled.");
+            // Update the transaction to 'failed' since the user closed the modal
+            await fetch('/api/transactions', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                transactionId: order.id,
+                status: 'failed',
+              }),
+            });
+            setIsProcessing(false);
+          },
         },
         theme: { color: "#4f46e5" }, // Indigo color
       };
@@ -260,7 +310,7 @@ export default function CourseDetailPage() {
       <Box mb={3}>
         <Paper
           elevation={0}
-          className="border-blue-500 border-2"
+          className="border-blue-500 border"
           sx={{
             p: 2.5,
             borderRadius: 4,
@@ -304,7 +354,7 @@ export default function CourseDetailPage() {
   <Box flex={1}>
     <Paper
       elevation={0}
-      className="border-blue-500 border-2"
+      className="border-blue-500 border"
       sx={{
         p: 4,
         borderRadius: 4,
@@ -424,7 +474,7 @@ export default function CourseDetailPage() {
   >
     <Paper
       elevation={0}
-      className="border-blue-500 border-2"
+      className="border-blue-500 border"
       sx={{
         p: 3,
         borderRadius: 4,
@@ -556,7 +606,7 @@ export default function CourseDetailPage() {
           {/* Left: Two progress circles */}
           <Paper
             elevation={0}
-            className="border-blue-500 border-2"
+            className="border-blue-500 border"
             sx={{
               flex: 1,
               p: 3,
@@ -638,7 +688,7 @@ export default function CourseDetailPage() {
           {/* Right: Monthly Progress calendar */}
           <Paper
             elevation={0}
-            className="border-blue-500 border-2"
+            className="border-blue-500 border"
             sx={{
               flexBasis: { xs: "100%", md: "40%" },
               p: 3,
@@ -676,7 +726,7 @@ export default function CourseDetailPage() {
         <div className="space-y-4">
           {completedClasses.length > 0 ? (
             completedClasses.map((c) => (
-              <Paper key={c._id} className="border-blue-500 border-2" sx={{ p: 2, borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: '#1f2937' }}>
+              <Paper key={c._id} className="border-blue-500 border" sx={{ p: 2, borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: '#1f2937' }}>
                 <Box>
                   <Typography variant="body1" fontWeight="medium">{c.topic}</Typography>
                   {c.homeworkFile && (
@@ -714,10 +764,7 @@ export default function CourseDetailPage() {
       {/* === ADD CLASSES MODAL === */}
       <Dialog open={isModalOpen} onClose={handleCloseModal} PaperProps={{ sx: { borderRadius: 4, bgcolor: '#1f2937' } }}>
         <DialogTitle fontWeight="bold">Add More Classes</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ mb: 3 }}>
-            Select how many classes you want to add for "{course.title}".
-          </DialogContentText>
+        <DialogContent dividers sx={{ p: 3 }}>
           <Box
             sx={{
               display: "flex",
@@ -737,17 +784,41 @@ export default function CourseDetailPage() {
               <Plus />
             </IconButton>
           </Box>
+          <Divider sx={{ my: 2 }}>Summary</Divider>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Course:</Typography>
+              <Typography fontWeight="medium">{course.title}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Price per Class:</Typography>
+              <Typography fontWeight="medium">₹{course.perClassPrice.toFixed(2)}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Classes to Add:</Typography>
+              <Typography fontWeight="medium">{classesToAdd}</Typography>
+            </Box>
+            <Divider />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h6" fontWeight="bold">Total:</Typography>
+              <Typography variant="h6" fontWeight="bold">₹{totalPrice.toFixed(2)}</Typography>
+            </Box>
+          </Box>
         </DialogContent>
-        <DialogActions sx={{ p: '0 24px 20px' }}>
+        <DialogActions sx={{ p: 2 }}>
           <Button onClick={handleCloseModal} color="secondary">
             Cancel
           </Button>
           <Button
             onClick={handleProcessPayment}
             variant="contained"
+            size="large"
             disabled={isProcessing}
+            sx={{ flexGrow: 1 }}
           >
-            {isProcessing ? <CircularProgress size={24} color="inherit" /> : `Process (₹${totalPrice.toFixed(2)})`}
+            {isProcessing ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : `Proceed to Pay ₹${totalPrice.toFixed(2)}`}
           </Button>
         </DialogActions>
       </Dialog>

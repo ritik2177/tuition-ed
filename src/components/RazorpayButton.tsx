@@ -37,8 +37,8 @@ export default function PayButton({ amount, bookingId }: { amount: number; booki
       key: process.env.NEXT_PUBLIC_RP_KEY_ID ?? "", // only public key here
       amount: order.amount,
       currency: order.currency,
-      name: "College Project",
-      description: "Payment for Demo",
+      name: "TuitionEd",
+      description: `Payment for your course booking #${bookingId}`,
       order_id: order.id,
       handler: async function (response: RazorpayResponse) {
         toast.success(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
@@ -90,7 +90,7 @@ export default function PayButton({ amount, bookingId }: { amount: number; booki
       onClick={handlePay}
       className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-md"
     >
-      Pay ₹{amount}
+      Pay ₹{amount.toFixed(2)}
     </button>
   );
 }

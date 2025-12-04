@@ -1,54 +1,43 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { z } from "zod";
 
-export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+const orderSchema = z.object({
+  amount: z.number().positive(),
+  receipt: z.string(),
+});
 
-  if (!session?.user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  const { amount, courseId, classesToAdd, bookingId } = await request.json();
-
-  // Check for essential environment variables
-  if (!process.env.RP_KEY_ID || !process.env.RP_KEY_SECRET) {
-    console.error("Razorpay Key ID or Key Secret is not defined in .env file");
-    return NextResponse.json(
-      { message: "Payment gateway is not configured. Please contact support." },
-      { status: 500 }
-    );
-  }
-
-  const razorpay = new Razorpay({
-    key_id: process.env.RP_KEY_ID,
-    key_secret: process.env.RP_KEY_SECRET,
-  });
-
-  // Dynamically build notes object to avoid undefined values
-  const notes: { [key: string]: string | number } = {
-    userId: session.user.id!,
-  };
-  if (courseId) notes.courseId = courseId;
-  if (classesToAdd) notes.classesToAdd = classesToAdd;
-  if (bookingId) notes.bookingId = bookingId;
-
-  const options = {
-    amount: Math.round(amount * 100), // Amount in the smallest currency unit (paise)
-    currency: "INR",
-    receipt: `receipt_${Date.now()}`,
-    notes: notes,
-  };
-
+export async function POST(req: NextRequest) {
   try {
+    const body = await req.json();
+    const validation = orderSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json({ success: false, message: "Invalid request body", errors: validation.error.issues }, { status: 400 });
+    }
+
+    const { amount, receipt } = validation.data;
+
+    const razorpay = new Razorpay({
+      key_id: process.env.RP_KEY_ID!,
+      key_secret: process.env.RP_KEY_SECRET!,
+    });
+
+    // Convert amount from rupees to paise. Razorpay expects an integer.
+    // Using Math.round() prevents floating point inaccuracies.
+    const amountInPaise = Math.round(amount * 100); 
+
+    const options = {
+      amount: amountInPaise, // e.g., 500.50 becomes 50050
+      currency: "INR",
+      receipt: receipt,
+    };
+
     const order = await razorpay.orders.create(options);
+
     return NextResponse.json(order);
   } catch (error) {
     console.error("Error creating Razorpay order:", error);
-    return NextResponse.json(
-      { message: "Could not create payment order." },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, message: "Failed to create Razorpay order" }, { status: 500 });
   }
 }

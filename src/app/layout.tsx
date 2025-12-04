@@ -1,8 +1,36 @@
+import type { Metadata } from "next";
 import "./globals.css";
 import { AppProviders } from "@/provider/AppProviders";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Toaster } from 'sonner';
+
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  title: {
+    default: "TuitionEd",
+    template: `%s | TuitionEd`,
+  },
+  description: "Expert Online Tutoring for personal and academic growth.",
+  icons: {
+    icon: "/logo.png",
+  },
+  openGraph: {
+    title: "TuitionEd",
+    description: "Expert Online Tutoring for personal and academic growth.",
+    url: "https://tuitioned.vercel.app", // Replace with your actual domain
+    siteName: "TuitionEd",
+    images: [
+      {
+        url: "/logo.png", // Make sure to create this image and place it in the `public` folder
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+};
 
 export default function RootLayout({
   children,
@@ -10,10 +38,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: 'dark' }}>
+    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "TuitionEd",
+              url: "https://tuitioned.vercel.app", // Replace with your actual domain
+              logo: "https://tuitioned.vercel.app/logo.png", // Replace with the full URL to your logo
+            }),
+          }}
+        />
+      </head>
       <body>
-        <AppProviders><Navbar />
-        <div className="pt-16">{children}</div>
+        <AppProviders>
+          <Navbar />
+          <div className="pt-16">{children}</div>
           <Toaster richColors />
           <Footer />
         </AppProviders>

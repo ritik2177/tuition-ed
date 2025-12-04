@@ -18,7 +18,7 @@ export interface IUser extends Document {
   role: 'student' | 'teacher' | 'admin';
   provider: 'google' | 'credentials';
   isAcceptingMessages?: boolean;
-  messages?: [string];
+  // messages?: [string];
   qualification?: string;
   experience?: string;
   listOfSubjects?: string[];
@@ -52,7 +52,7 @@ const UserSchema: Schema<IUser> = new Schema({
   isVerified: { type: Boolean, default: false },
   profileImage: { type: String },
   isAcceptingMessages: { type: Boolean, default: true },
-  messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
+  // messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
 }, { timestamps: true });
 
 const User: Model<IUser> = models.User || mongoose.model<IUser>('User', UserSchema);
